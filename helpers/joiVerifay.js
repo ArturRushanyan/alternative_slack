@@ -1,4 +1,3 @@
-import Joi from '@hapi/joi';
 import Schema from './verifayingSchema';
 
 exports.Registration = (req) => {
@@ -6,6 +5,19 @@ exports.Registration = (req) => {
     if (req.body.password !== req.body.confirmPassword) {
         return false;
     }
-    const result = Joi.validate(req.body, schema);
-    return !!result;
+    const result = schema.validate(req.body);
+    if (result.error) {
+        return false;
+    }
+    return true;
+};
+
+exports.Login = (req) => {
+    const schema = Schema.Login;
+    const result = schema.validate(req.body);
+    if (result.error) {
+        console.log('result.error =>>>', result.error);
+        return false;
+    }
+    return true;
 };
