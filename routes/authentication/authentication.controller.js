@@ -41,10 +41,16 @@ exports.Login = (req, res, next) => {
     if(!authenticateWithJoi.Login(req)) {
         return Error.errorHandler(res, 422, 'couldn\'t pass validation');
     }
-    User.findOne({
+    User.findOneAndUpdate({
         email: req.body.email
+    }, {
+        $set: {
+            isLoggedIn: true,
+            lastLogin: Date.now(),
+        },
+    }, {
+        new: true
     }).then(user => {
-        console.log('user =>>>>', user);
         if (!user) {
             return Error.errorHandler(res, 404, 'user doesn\'t exists');
         }

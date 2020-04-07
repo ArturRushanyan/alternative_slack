@@ -16,7 +16,6 @@ exports.Login = (req) => {
     const schema = Schema.Login;
     const result = schema.validate(req.body);
     if (result.error) {
-        console.log('result.error =>>>', result.error);
         return false;
     }
     return true;
