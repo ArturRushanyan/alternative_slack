@@ -66,3 +66,22 @@ exports.Login = (req, res, next) => {
         return Error.errorHandler(res, 500, err);
     })
 };
+
+exports.Logout = (req, res, next) => {
+    console.log('log 1 in logout controller');
+    const user = req.user;
+    console.log('req.user in controller =>>>', user);
+    // User.findOneAndUpdate({
+    //     _id: user._id
+    // }, {
+    //     $set: {
+    //         isLoggedIn: false,
+    //     }
+    // }).then(() => {
+    //     res.status(200).json({
+    //         success: true,
+    //     });
+    // }).catch(err => {
+    //     return Error.errorHandler(res, 500, err);
+    // });
+};

@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import logger from 'morgan';
 import path from 'path';
+import passport from 'passport';
 
 import router from './routes';
 import config from './config';
@@ -13,6 +14,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(logger('dev'));
 app.use('/images', express.static(path.join('./images')));
+
+app.use(passport.initialize());
+require('./helpers/passport')(passport);
 
 mongoose.connect(config.DB.url, {
     useNewUrlParser: true,

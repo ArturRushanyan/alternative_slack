@@ -5,7 +5,7 @@ const config = {
     DB: {
         url: 'mongodb://localhost:27017/alternative_slack',
     },
-    JWT_KEY: 'supersecret',
+    JWT_SECRET_KEY: 'supersecret',
 };
 
 module.exports = config;
