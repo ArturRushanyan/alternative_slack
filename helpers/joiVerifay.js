@@ -20,3 +20,12 @@ exports.Login = (req) => {
     }
     return true;
 };
+
+exports.resetPassword = (req) => {
+  const schema = Schema.resetPassword;
+    const result = schema.validate(req.body);
+    if (result.error) {
+        return false;
+    }
+    return true;
+};

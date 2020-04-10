@@ -8,5 +8,16 @@ exports.hasingPassword = (password) => {
          }
          return resolve(hash);
       });
-  })
+  });
+};
+
+exports.comparePassword = (password, hashedPassword) => {
+    return new Promise((resolve, reject) => {
+        bcrypt.compare(password, hashedPassword, (err, result) => {
+            if (err) {
+                reject(err);
+            }
+            resolve(result);
+        });
+    });
 };
