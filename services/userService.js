@@ -16,6 +16,11 @@ exports.createUser = (data) => {
 };
 
 exports.findUserAndUpdate = (query, attributes) => {
-    return userModel.findOneAndUpdate(query, attributes, { upsert: true, new: true });
-
+    return userModel.findOneAndUpdate(query, attributes, { upsert: true, new: true }).then(result => {
+       if (result) {
+           return { success: true };
+       }
+    }).catch(err => {
+        return { success: false, error: err }
+    });
 };

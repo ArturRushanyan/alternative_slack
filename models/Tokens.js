@@ -11,13 +11,10 @@ const tokenSchema = new Schema({
     expiration: {
         type: String,
     },
-    email: {
-        type: String,
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
-        unique: true,
-        lowercase: true,
-        trim: true,
-        match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/,
     },
     reason: {
       type: String,

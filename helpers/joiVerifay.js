@@ -29,3 +29,12 @@ exports.resetPassword = (req) => {
     }
     return true;
 };
+
+exports.resetPasswordConfirmation = (req) => {
+    const schema = Schema.resetPasswordConfirmation;
+    const result = schema.validate(req.body);
+    if (result.error) {
+        return false;
+    }
+    return true;
+};

@@ -1,9 +1,5 @@
 import moment from 'moment';
 
-// Models
-import userModel from '../../models/User';
-import tokenModel from '../../models/Tokens';
-
 // Error
 import Error from '../../helpers/Error';
 
@@ -17,7 +13,7 @@ import { PASSWORD_RESET_REASON } from '../../helpers/constants';
 // import { transporter } from '../../helpers/mailer';
 
 // Services
-import tokenService  from '../../services/tokenService';
+import * as tokenService  from '../../services/tokenService';
 import * as userService from '../../services/userService';
 
 
@@ -36,11 +32,11 @@ exports.SignUp = (req, res, next) => {
         }
         return hash.hasingPassword(req.body.password);
     }).then(hashedPassword => {
-        let newUser = new userModel({
+        let newUser = {
             email: req.body.email,
             password: hashedPassword,
             fullName: req.body.fullName,
-        });
+        };
         return userService.createUser(newUser);
     }).then((user) => {
         if(!user) {
@@ -140,7 +136,7 @@ exports.resetPassword = (req, res, next) => {
         user = result;
         return Token.generateResetPasswordToken();
     }).then((tokenInfo) => {
-        return tokenService.addTemporaryToken(user.email, tokenInfo, PASSWORD_RESET_REASON);
+        return tokenService.addTemporaryToken(user, tokenInfo, PASSWORD_RESET_REASON);
     }).then((result) => {
         // Sending email but it's now doesn't work!!!!
         // const mailOptions = {
@@ -165,42 +161,42 @@ exports.resetPassword = (req, res, next) => {
         // });
         res.status(200).json({ result });
     }).catch(err => {
-        console.log('err= >>>>>>>', err);
-        // return Error.errorHandler(res, err.status, err.message);
+        return Error.errorHandler(res, err.status, err.message);
     });
 };
 
-// exports.resetPasswordConfirmation = (req, res, next) => {
-//     const { token } = req.params;
-//     const { password } = req.body;
-//     let userData;
-//
-//     tokenModel.findOne({
-//         token: token,
-//         reason:  PASSWORD_RESET_REASON
-//     }).then((result) => {
-//         if (!result) {
-//             return Error.errorHandler(res, 400, 'Invalid token');
-//         }
-//
-//         if (moment(result.expiration, "YYYY-MM-DD HH:mm:ss").isBefore(moment().format("YYYY-MM-DD HH:mm:ss"))) {
-//             baseService.findTokenByIdAndDelete(result._id);
-//             Error.errorHandler(res, 409, 'Token is expired, please try again');
-//         }
-//         userData = result;
-//         return hash.hasingPassword(password);
-//     }).then((newPassword) => {
-//         User.findOneAndUpdate({
-//             email: userData.email
-//         }, {
-//             $set: {
-//                 password: newPassword
-//             }
-//         });
-//         baseService.findTokenByIdAndDelete(userData._id);
-//         return res.status(200).json({ success: true, message: 'password successfully updated' })
-//     }).catch(err => {
-//         return Error.errorHandler(res, 500, err);
-//     })
-// };
+exports.resetPasswordConfirmation = (req, res, next) => {
+    const { token } = req.params;
+    const { password } = req.body;
+    let userData;
+
+    if (!authenticateWithJoi.resetPasswordConfirmation(req)) {
+        return Error.errorHandler(res, 400, 'password is required');
+    }
+    tokenService.getByTokenAndReason(token, PASSWORD_RESET_REASON).then(token => {
+        if (!token.token || !token.user) {
+            throw { status: 400, message: 'Invalid token' }
+        }
+
+        if (moment(token.expiration, "YYYY-MM-DD HH:mm:ss").isBefore(moment().format("YYYY-MM-DD HH:mm:ss"))) {
+            throw { status: 409, message: 'Token is expired, please try again' }
+        }
+        userData = token;
+        return hash.hasingPassword(password);
+    }).then((newPassword) => {
+        return userService.findUserAndUpdate({ email: userData.user.email }, { password: newPassword })
+    }).then((result) => {
+        if (!result.success) {
+            throw {status: 500, message: result.error};
+        }
+        return tokenService.findTokenByIdAndDelete(userData._id);
+    }).then((result) => {
+        if (!result.success) {
+            throw { status: 500, message: result.error };
+        }
+        return res.status(200).json({ success: true, message: 'password successfully updated' })
+    }).catch(err => {
+        return Error.errorHandler(res, err.status, err.message);
+    })
+};
 

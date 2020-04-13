@@ -14,5 +14,8 @@ module.exports = {
     resetPassword: Joi.object().keys({
         email: Joi.string().email().required().min(5).max(40),
     }),
+    resetPasswordConfirmation:Joi.object().keys({
+        password: Joi.string().required().min(6).max(20),
+    }),
 };
 
