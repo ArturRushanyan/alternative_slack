@@ -3,8 +3,6 @@ import moment from 'moment';
 // Error
 import Error from '../../helpers/Error';
 
-// Authenticate
-import * as authenticateWithJoi from '../../helpers/joiVerifay';
 
 // helpers
 import * as hash from '../../helpers/hash';
@@ -19,17 +17,12 @@ import * as userService from '../../services/userService';
 
 exports.SignUp = (req, res, next) => {
     let createdUser;
-    if(!authenticateWithJoi.Registration(req)) {
-        return Error.errorHandler(res, 422, 'couldn\'t pass validation');
-    }
 
     userService.findUserByEmail(req.body.email).then(user => {
         if(user) {
-            throw {
-                status: 409,
-                message: 'User already exists'
-            }
+            throw { status: 409, message: 'User already exists' };
         }
+
         return hash.hasingPassword(req.body.password);
     }).then(hashedPassword => {
         let newUser = {
@@ -37,6 +30,7 @@ exports.SignUp = (req, res, next) => {
             password: hashedPassword,
             fullName: req.body.fullName,
         };
+
         return userService.createUser(newUser);
     }).then((user) => {
         if(!user) {
@@ -46,9 +40,10 @@ exports.SignUp = (req, res, next) => {
             }
         }
         createdUser = user;
+
         return Token.generateAuthToken(res, user._id)
     }).then(authToken => {
-       res.status(200).json({
+       return res.status(200).json({
            success: true,
            access_token: authToken,
            user: createdUser
@@ -61,9 +56,6 @@ exports.SignUp = (req, res, next) => {
 exports.Login = (req, res, next) => {
     let user;
     let authToken;
-    if(!authenticateWithJoi.Login(req)) {
-        return Error.errorHandler(res, 422, 'couldn\'t pass validation');
-    }
 
     userService.findUserByEmail(req.body.email).then(result => {
         if (!result) {
@@ -73,14 +65,13 @@ exports.Login = (req, res, next) => {
             };
         }
         user = result;
+
         return hash.comparePassword(req.body.password, user.password);
     }).then((isMatch) => {
         if (!isMatch) {
-            throw  {
-                status: 403,
-                message: 'passwords does not match'
-            };
+            throw  { status: 403, message: 'passwords does not match' };
         }
+
         return Token.generateAuthToken(res, user._id)
     }).then(token => {
         authToken = token;
@@ -88,18 +79,17 @@ exports.Login = (req, res, next) => {
             isLoggedIn: true,
             lastLogin: Date.now(),
         };
+
         return userService.findUserAndUpdate({ _id: user._id }, attributes);
     }).then(updatedUser => {
-        if (!updatedUser) {
-            throw {
-                status: 500,
-                message: 'something went wrong'
-            }
+        if (!updatedUser.success) {
+            throw { status: 500, message: 'something went wrong' };
         }
+
         return res.status(200).json({
             success: true,
             access_token: authToken,
-            user: updatedUser
+            user: updatedUser.userData
         });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
@@ -111,11 +101,10 @@ exports.Logout = (req, res, next) => {
     let attributes = {
         isLoggedIn: false,
     };
+
     return userService.findUserAndUpdate({ _id: user._id }, attributes)
     .then(() => {
-        res.status(200).json({
-            success: true,
-        });
+        res.status(200).json({ success: true });
     }).catch(err => {
         return Error.errorHandler(res, 500, err);
     });
@@ -124,9 +113,7 @@ exports.Logout = (req, res, next) => {
 exports.resetPassword = (req, res, next) => {
     let emailFromReq = req.body.email;
     let user;
-    if (!authenticateWithJoi.resetPassword(req)) {
-        return Error.errorHandler(res, 400, 'email is required');
-    }
+
     emailFromReq = emailFromReq.toLowerCase();
 
     userService.findUserByEmail(emailFromReq).then((result) => {
@@ -134,7 +121,9 @@ exports.resetPassword = (req, res, next) => {
             throw { status: 404, message: 'user doesn\'t exists' }
         }
         user = result;
+
         return Token.generateResetPasswordToken();
+
     }).then((tokenInfo) => {
         return tokenService.addTemporaryToken(user, tokenInfo, PASSWORD_RESET_REASON);
     }).then((result) => {
@@ -159,7 +148,8 @@ exports.resetPassword = (req, res, next) => {
         //     }
         //     transporter.close()
         // });
-        res.status(200).json({ result });
+        return res.status(200).json({ result });
+
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
     });
@@ -170,9 +160,6 @@ exports.resetPasswordConfirmation = (req, res, next) => {
     const { password } = req.body;
     let userData;
 
-    if (!authenticateWithJoi.resetPasswordConfirmation(req)) {
-        return Error.errorHandler(res, 400, 'password is required');
-    }
     tokenService.getByTokenAndReason(token, PASSWORD_RESET_REASON).then(token => {
         if (!token.token || !token.user) {
             throw { status: 400, message: 'Invalid token' }
@@ -182,19 +169,24 @@ exports.resetPasswordConfirmation = (req, res, next) => {
             throw { status: 409, message: 'Token is expired, please try again' }
         }
         userData = token;
+
         return hash.hasingPassword(password);
+
     }).then((newPassword) => {
-        return userService.findUserAndUpdate({ email: userData.user.email }, { password: newPassword })
+        return userService.findUserAndUpdate({ email: userData.user.email }, { password: newPassword });
+
     }).then((result) => {
         if (!result.success) {
             throw {status: 500, message: result.error};
         }
         return tokenService.findTokenByIdAndDelete(userData._id);
+
     }).then((result) => {
         if (!result.success) {
             throw { status: 500, message: result.error };
         }
         return res.status(200).json({ success: true, message: 'password successfully updated' })
+
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
     })

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import config from '../config';
+import { DEFAULT_AVATAR_IMAGE } from '../helpers/constants';
 
 const Schema = mongoose.Schema;
 const userId = mongoose.Schema.Types.ObjectId;
@@ -23,9 +23,9 @@ const userSchema = new Schema({
         required: true,
         trim: true,
     },
-    imagUrl: {
+    imageUrl: {
         type: String,
-        default: config.defaultAvatar,
+        default: DEFAULT_AVATAR_IMAGE,
     },
     isLoggedIn: {
         type: Boolean,

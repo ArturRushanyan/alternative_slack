@@ -1,7 +1,7 @@
 import userModel from '../models/User';
 
-exports.findUserByEmail = (userEmail) => {
-    return userModel.findOne({ email: userEmail });
+exports.findUserByEmail = (email) => {
+    return userModel.findOne({ email });
 };
 
 exports.createUser = (data) => {
@@ -18,7 +18,7 @@ exports.createUser = (data) => {
 exports.findUserAndUpdate = (query, attributes) => {
     return userModel.findOneAndUpdate(query, attributes, { upsert: true, new: true }).then(result => {
        if (result) {
-           return { success: true };
+           return { success: true, userData: result };
        }
     }).catch(err => {
         return { success: false, error: err }

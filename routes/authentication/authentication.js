@@ -1,13 +1,14 @@
 import express from 'express';
 import passport from 'passport';
-import Authentiaction from './authentication.controller';
+import * as authentiaction from './authentication.controller';
+import * as validateWithJoi from '../../middlewares/joiVerifay';
 
 const router = express.Router();
 
-router.post('/signup', Authentiaction.SignUp);
-router.post('/login', Authentiaction.Login);
-router.get('/logout', passport.authenticate('jwt', { session: false }), Authentiaction.Logout);
-router.post('/reset-password', Authentiaction.resetPassword);
-router.post('/reset-password/confirm/:token', Authentiaction.resetPasswordConfirmation);
+router.post('/signup', validateWithJoi.Registration, authentiaction.SignUp);
+router.post('/login', validateWithJoi.Login, authentiaction.Login);
+router.get('/logout', passport.authenticate('jwt', { session: false }), authentiaction.Logout);
+router.post('/reset-password', validateWithJoi.resetPassword, authentiaction.resetPassword);
+router.post('/reset-password/confirm/:token', validateWithJoi.resetPasswordConfirmation, authentiaction.resetPasswordConfirmation);
 
 export default router;

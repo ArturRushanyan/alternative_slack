@@ -16,7 +16,7 @@ app.use(logger('dev'));
 app.use('/images', express.static(path.join('./images')));
 
 app.use(passport.initialize());
-require('./helpers/passport')(passport);
+require('./middlewares/passport')(passport);
 
 mongoose.connect(config.DB.url, {
     useNewUrlParser: true,
