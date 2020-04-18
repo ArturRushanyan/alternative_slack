@@ -22,4 +22,5 @@ export const WORKSPACE_OPERATION_PERMISSIONS = {
     GET: ['owner', 'admin', 'member'],
     UPDATE: ['owner', 'admin'],
     DELETE: ['owner', 'admin'],
+    ADD_USER: ['owner', 'admin'],
 };

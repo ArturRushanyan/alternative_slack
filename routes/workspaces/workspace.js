@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 
-// middlewares
+// middleware
 import * as validateWithJoi from '../../middlewares/joiVerifay';
 import checkCredentials from '../../middlewares/checkCredentials/workspace';
 
@@ -14,7 +14,7 @@ router.get('/:workspaceId', passport.authenticate('jwt', { session: false }), va
 router.patch('/:workspaceId', passport.authenticate('jwt', { session: false }), validateWithJoi.updateWorkspace, checkCredentials('update'), workspace.update);
 router.delete('/:workspaceId', passport.authenticate('jwt', { session: false }), validateWithJoi.deleteWorkspace, checkCredentials('delete'), workspace.delete);
 
-// router.post('/:workspaceId/add-user', passport.authenticate('jwt', { session: false }), workspace.addUser);
+router.post('/:workspaceId/add-user', passport.authenticate('jwt', { session: false }), validateWithJoi.addUserToWorkspace, checkCredentials('addUser'), workspace.addUser);
 //need to add a user in the workspace as soon asap
 
 export default router;

@@ -93,5 +93,30 @@ exports.delete = (req, res, next) => {
 };
 
 exports.addUser = (req, res, next) => {
+    const { workspaceId } = req.params;
+    const { email } = req.body;
+    const { role } = req.body;
+    let targetUser;
 
+    userService.findUserByEmail(email).then((user) => {
+        if (!user) {
+            throw { status: 404, message: `user with ${email} doesn't exists` }
+        }
+        targetUser = user;
+        return workspaceService.getUserFromMembers(user._id, req.workspace.members);
+    }).then((member) =>{
+        if (member) {
+            throw { status: 409, message: `user with ${email} exists in the current workspace` };
+        }
+
+        return workspaceService.addUserInWorkspace(role, targetUser._id, workspaceId);
+    }).then((result) => {
+        if (!result.success || result.err) {
+            throw { status: 400, message: result.err || 'something went wrong' };
+        }
+
+        return res.status(200).json({ success: true, message: 'user successfully added to the workspace' });
+    }).catch(err => {
+        return Error.errorHandler(res, err.status, err.message);
+    })
 };

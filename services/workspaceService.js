@@ -6,6 +6,7 @@ exports.getPermissions = (operationType) => {
         case 'get' : return WORKSPACE_OPERATION_PERMISSIONS.GET;
         case 'update' : return WORKSPACE_OPERATION_PERMISSIONS.UPDATE;
         case 'delete' : return WORKSPACE_OPERATION_PERMISSIONS.DELETE;
+        case 'addUser': return WORKSPACE_OPERATION_PERMISSIONS.ADD_USER;
         default: return [];
     }
 };
@@ -50,26 +51,44 @@ exports.updateWorkspace = (query, attributes) => {
 
 exports.getUserFromMembers = (userId, members) => {
     let currentMember = null;
-        members.forEach(item => {
-        if (userId == item.user._id) {
-            currentMember = item;
+    members.forEach(item => {
+        if (userId.toString() === item.user._id.toString()) {
+            return currentMember = item;
         }
     });
     return new Promise(resolve => {
-        if (!currentMember) {
-            resolve(currentMember);
-        }
-        resolve(currentMember);
+        return resolve(currentMember);
     });
 };
 
 exports.deleteWorkspace = (wid) => {
     return workspaceModel.deleteOne({_id: wid}).then((result) => {
-        if (result.deletedCount <= 0) {
-            return { success: false, error: 'can\'t delete workspace' };
+        if (result.deletedCount === 0) {
+            return { success: false, error: 'couldn\'t delete a workspace' };
         }
         return { success: true };
     }).catch(err => {
         return { success: false, error: err };
     })
+};
+
+
+exports.addUserInWorkspace = (role, userId, workspaceId) => {
+    let newMember = {
+      role: role || 'member',
+      user: userId
+    };
+    return workspaceModel.update({ _id: workspaceId }, {
+        $push: {
+            members: newMember
+        }
+    }).then((result) => {
+        if (result.nModified === 0) {
+            return { success: false, error: 'couldn\'t add a user to the workspace' };
+        }
+
+        return { success: true }
+    }).catch(err => {
+        return { success: false, error: err };
+    });
 };

@@ -81,3 +81,17 @@ exports.deleteWorkspace = (req, res, next) => {
     }
     next();
 };
+
+exports.addUserToWorkspace = (req, res, next) => {
+    const data = {
+      workspaceId: req.params.workspaceId,
+      email: req.body.email,
+    };
+    const schema = Schema.addUserToWorkspace;
+    const result = schema.validate(data);
+
+    if (result.error) {
+        return Error.errorHandler(res, 422, 'couldn\'t pass validation12');
+    }
+    next();
+};

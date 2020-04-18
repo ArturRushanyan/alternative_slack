@@ -37,5 +37,11 @@ module.exports = {
     deleteWorkspace: Joi.object().keys({
         workspaceId: Joi.string().required(),
     }),
+
+    addUserToWorkspace: Joi.object().keys({
+        workspaceId: Joi.string().required(),
+        email: Joi.string().email().required().min(5).max(40),
+        role: Joi.string().min(5).max(6),
+    }),
 };
 
