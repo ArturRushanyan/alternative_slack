@@ -1,12 +1,12 @@
 import workspaceModel from '../models/Workspace';
-import { WORKSPACE_OPERATION_PERMISSIONS } from '../helpers/constants';
+import * as constants from '../helpers/constants';
 
 exports.getPermissions = (operationType) => {
     switch (operationType) {
-        case 'get' : return WORKSPACE_OPERATION_PERMISSIONS.GET;
-        case 'update' : return WORKSPACE_OPERATION_PERMISSIONS.UPDATE;
-        case 'delete' : return WORKSPACE_OPERATION_PERMISSIONS.DELETE;
-        case 'addUser': return WORKSPACE_OPERATION_PERMISSIONS.ADD_USER;
+        case 'get' : return constants.WORKSPACE_OPERATION_PERMISSIONS.GET;
+        case 'update' : return constants.WORKSPACE_OPERATION_PERMISSIONS.UPDATE;
+        case 'delete' : return constants.WORKSPACE_OPERATION_PERMISSIONS.DELETE;
+        case 'addUser': return constants.WORKSPACE_OPERATION_PERMISSIONS.ADD_USER;
         default: return [];
     }
 };
@@ -64,7 +64,7 @@ exports.getUserFromMembers = (userId, members) => {
 exports.deleteWorkspace = (wid) => {
     return workspaceModel.deleteOne({_id: wid}).then((result) => {
         if (result.deletedCount === 0) {
-            return { success: false, error: 'couldn\'t delete a workspace' };
+            return { success: false, error: constants.COULDNT_DELETE_WORKSPACE };
         }
         return { success: true };
     }).catch(err => {
@@ -84,7 +84,7 @@ exports.addUserInWorkspace = (role, userId, workspaceId) => {
         }
     }).then((result) => {
         if (result.nModified === 0) {
-            return { success: false, error: 'couldn\'t add a user to the workspace' };
+            return { success: false, error: constants.COULDNT_ADD_USER_TO_THE_WORKSPACE };
         }
 
         return { success: true }

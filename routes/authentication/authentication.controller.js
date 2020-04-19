@@ -3,11 +3,10 @@ import moment from 'moment';
 // Error
 import Error from '../../helpers/Error';
 
-
 // helpers
 import * as hash from '../../helpers/hash';
 import * as Token from '../../helpers/generateToken';
-import { PASSWORD_RESET_REASON } from '../../helpers/constants';
+import * as constants from '../../helpers/constants';
 // import { transporter } from '../../helpers/mailer';
 
 // Services
@@ -20,7 +19,7 @@ exports.SignUp = (req, res, next) => {
 
     userService.findUserByEmail(req.body.email).then(user => {
         if(user) {
-            throw { status: 409, message: 'User already exists' };
+            throw { status: 409, message: constants.ALREADY_EXISTS('User') };
         }
 
         return hash.hasingPassword(req.body.password);
@@ -34,10 +33,7 @@ exports.SignUp = (req, res, next) => {
         return userService.createUser(newUser);
     }).then((user) => {
         if(!user) {
-            throw {
-                status: 500,
-                message: 'something went wrong'
-            }
+            throw { status: 500, message: constants.SOMETHING_WENT_WRONG };
         }
         createdUser = user;
 
@@ -59,17 +55,14 @@ exports.Login = (req, res, next) => {
 
     userService.findUserByEmail(req.body.email).then(result => {
         if (!result) {
-            throw  {
-                status: 404,
-                message: 'user doesn\'t exists'
-            };
+            throw  { status: 404, message: constants.NOT_EXISTS('user') };
         }
         user = result;
 
         return hash.comparePassword(req.body.password, user.password);
     }).then((isMatch) => {
         if (!isMatch) {
-            throw  { status: 403, message: 'passwords does not match' };
+            throw  { status: 403, message: constants.INCORRECT_PASSWORD };
         }
 
         return Token.generateAuthToken(res, user._id)
@@ -83,7 +76,7 @@ exports.Login = (req, res, next) => {
         return userService.findUserAndUpdate({ _id: user._id }, attributes);
     }).then(updatedUser => {
         if (!updatedUser.success) {
-            throw { status: 500, message: 'something went wrong' };
+            throw { status: 500, message: constants.SOMETHING_WENT_WRONG };
         }
 
         return res.status(200).json({
@@ -118,14 +111,14 @@ exports.resetPassword = (req, res, next) => {
 
     userService.findUserByEmail(emailFromReq).then((result) => {
         if (!result) {
-            throw { status: 404, message: 'user doesn\'t exists' }
+            throw { status: 404, message: constants.NOT_EXISTS('user') }
         }
         user = result;
 
         return Token.generateResetPasswordToken();
 
     }).then((tokenInfo) => {
-        return tokenService.addTemporaryToken(user, tokenInfo, PASSWORD_RESET_REASON);
+        return tokenService.addTemporaryToken(user, tokenInfo, constants.PASSWORD_RESET_REASON);
     }).then((result) => {
         // Sending email but it's now doesn't work!!!!
         // const mailOptions = {
@@ -160,13 +153,13 @@ exports.resetPasswordConfirmation = (req, res, next) => {
     const { password } = req.body;
     let userData;
 
-    tokenService.getByTokenAndReason(token, PASSWORD_RESET_REASON).then(token => {
+    tokenService.getByTokenAndReason(token, constants.PASSWORD_RESET_REASON).then(token => {
         if (!token.token || !token.user) {
-            throw { status: 400, message: 'Invalid token' }
+            throw { status: 400, message: constants.INVALID_TOKEN }
         }
 
         if (moment(token.expiration, "YYYY-MM-DD HH:mm:ss").isBefore(moment().format("YYYY-MM-DD HH:mm:ss"))) {
-            throw { status: 409, message: 'Token is expired, please try again' }
+            throw { status: 409, message: constants.EXPIRED_TOKEN }
         }
         userData = token;
 
@@ -185,7 +178,7 @@ exports.resetPasswordConfirmation = (req, res, next) => {
         if (!result.success) {
             throw { status: 500, message: result.error };
         }
-        return res.status(200).json({ success: true, message: 'password successfully updated' })
+        return res.status(200).json({ success: true, message: constants.PASSWORD_UPDATED })
 
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);

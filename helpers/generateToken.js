@@ -3,11 +3,12 @@ import moment from 'moment';
 import { uid } from 'rand-token';
 import Error from '../helpers/Error';
 import config from '../config';
+import * as constants from '../helpers/constants';
 
 exports.generateAuthToken = (res, userId) => {
     return new Promise((resolve, reject) => {
         if (!userId) {
-            reject(Error.errorHandler(res, 400, 'Missing user\'s id'));
+            reject(Error.errorHandler(res, 400, constants.MISSING_USER_ID));
         }
         resolve(JWT.sign({ _id: userId }, config.JWT_SECRET_KEY, { expiresIn: '1h' }));
     });

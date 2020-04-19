@@ -1,5 +1,6 @@
-//Error
 import Error from '../../helpers/Error';
+
+import * as constants from '../../helpers/constants';
 
 // Services
 import * as userService from '../../services/userService';
@@ -11,7 +12,7 @@ exports.create = (req, res, next) => {
 
     userService.findUserByEmail(user.email).then((user) => {
         if (!user) {
-            throw { status: 400, message: 'user doesn\'t exists'};
+            throw { status: 400, message: constants.NOT_EXISTS('user') };
         }
 
         return workspaceService.findWorkspace({ name: name });
@@ -19,13 +20,13 @@ exports.create = (req, res, next) => {
         if (!workspace.success && workspace.error) {
             throw { status: 500, message: workspace.error };
         } else if (workspace.success) {
-            throw { status: 409, message: 'workspace with current name already exists' }
+            throw { status: 409, message: constants.ALREADY_EXISTS('workspace with current name') };
         }
 
         return workspaceService.createWorkspace(name, user, 'owner');
     }).then((workspace) => {
         if (!workspace) {
-            throw { status: 500, message: 'something went wrong' }
+            throw { status: 500, message: constants.SOMETHING_WENT_WRONG }
         }
 
         return res.status(200).json({ success: true , workspace });
@@ -39,7 +40,7 @@ exports.get = (req, res, next) => {
 
     workspaceService.getWorkspace({ _id: workspaceId }).then((workspace) => {
         if (!workspace) {
-            throw { status: 404, message: `workspace with id '${workspaceId}' doesn't exists` };
+            throw { status: 404, message: constants.WORKSPACE_DOES_NOT_EXIST(workspaceId) };
         }
 
         return  res.status(200).json({ workspace });
@@ -58,14 +59,14 @@ exports.update = (req, res, next) => {
 
     workspaceService.getWorkspace({ _id: workspaceId }).then((result) => {
         if (!result) {
-            throw {status: 404, message: 'couldn\'t find a workspace'}
+            throw {status: 404, message: constants.WORKSPACE_DOES_NOT_EXIST(workspaceId)}
         }
 
         return workspaceService.updateWorkspace({_id: workspaceId}, attributes);
     }).then((updatedWorkspace) => {
 
         if (!updatedWorkspace.success || updatedWorkspace.err) {
-            throw { status: 500, message: updatedWorkspace.error || 'something went wrong' };
+            throw { status: 500, message: updatedWorkspace.error || constants.SOMETHING_WENT_WRONG };
         }
 
         return res.status(200).json({
@@ -83,7 +84,7 @@ exports.delete = (req, res, next) => {
 
     return workspaceService.deleteWorkspace(workspaceId).then((result) => {
         if (!result.success || result.err) {
-            throw { status: 400, message: result.err || 'something went wrong' };
+            throw { status: 400, message: result.err || constants.SOMETHING_WENT_WRONG };
         }
 
         return res.status(200).json({ success: true });
@@ -100,7 +101,7 @@ exports.addUser = (req, res, next) => {
 
     userService.findUserByEmail(email).then((user) => {
         if (!user) {
-            throw { status: 404, message: `user with ${email} doesn't exists` }
+            throw { status: 404, message: constants.NOT_EXISTS(`user with ${email}`) }
         }
         targetUser = user;
         return workspaceService.getUserFromMembers(user._id, req.workspace.members);
@@ -112,10 +113,10 @@ exports.addUser = (req, res, next) => {
         return workspaceService.addUserInWorkspace(role, targetUser._id, workspaceId);
     }).then((result) => {
         if (!result.success || result.err) {
-            throw { status: 400, message: result.err || 'something went wrong' };
+            throw { status: 400, message: result.err || constants.SOMETHING_WENT_WRONG };
         }
 
-        return res.status(200).json({ success: true, message: 'user successfully added to the workspace' });
+        return res.status(200).json({ success: true, message: constants.USER_SUCCESSFULLY_ADD });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
     })
