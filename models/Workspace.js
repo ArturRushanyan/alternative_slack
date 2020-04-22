@@ -3,7 +3,7 @@ import {DEFAULT_WORKSPACE_LOGO, WORKSPACE_USERS_ROLES } from '../helpers/constan
 
 const Schema = mongoose.Schema;
 
-const workspaceSchema  = new Schema({
+const workspaceSchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -24,6 +24,11 @@ const workspaceSchema  = new Schema({
             ref: 'User',
             required: true,
         }
+    }],
+    channel: [{
+       type: Schema.Types.ObjectId,
+       ref: 'Channel',
+       required: true,
     }],
     imageUrl: {
         type: String,

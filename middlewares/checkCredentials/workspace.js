@@ -1,11 +1,21 @@
 import Error from '../../helpers/Error';
 import * as constants from '../../helpers/constants';
+import * as util from '../../helpers/utils';
 
 import * as workspaceService from '../../services/workspaceService';
 
+const getParam = (req) =>  {
+    if (req.params.workspaceId) {
+        return req.params.workspaceId;
+    }
+    if (req.body.workspaceId) {
+        return req.body.workspaceId
+    }
+};
+
 export default (operationType) => {
     return (req, res, next) => {
-        const { workspaceId } = req.params;
+        const workspaceId = getParam(req);
         const { id } = req.user;
         let workspaceData;
 
@@ -14,7 +24,7 @@ export default (operationType) => {
                 throw {status: 404, message: constants.WORKSPACE_DOES_NOT_EXIST(workspaceId) };
             }
             workspaceData = workspace;
-            return workspaceService.getUserFromMembers(id, workspace.members);
+            return util.getUserFromMembers(id, workspace.members);
         }).then(member =>{
             if (!member) {
                 throw { status: 400, message: constants.PERMISSION_DENIED }

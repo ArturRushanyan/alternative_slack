@@ -7,6 +7,7 @@ exports.getPermissions = (operationType) => {
         case 'update' : return constants.WORKSPACE_OPERATION_PERMISSIONS.UPDATE;
         case 'delete' : return constants.WORKSPACE_OPERATION_PERMISSIONS.DELETE;
         case 'addUser': return constants.WORKSPACE_OPERATION_PERMISSIONS.ADD_USER;
+        case 'createChannel': return constants.WORKSPACE_OPERATION_PERMISSIONS.CREATE_CHANNEL;
         default: return [];
     }
 };
@@ -23,18 +24,21 @@ exports.findWorkspace = (query) => {
 
 };
 
-exports.createWorkspace = (name, user, role) => {
-    let attributes = new workspaceModel({
+exports.createWorkspace = (name, user, role, channel) => {
+    let workspace = new workspaceModel({
         name,
         owner: user._id,
-        members: { role: role, user: user._id }
+        members: { role: role, user: user._id },
+        channel: channel._id
     });
 
-    return attributes.save();
+    return workspace.save();
 };
 
 exports.getWorkspace = (query) => {
-  return workspaceModel.findOne(query).populate('members.user', '_id email fullName isLoggedIn lastLogin imageUrl');
+  return workspaceModel.findOne(query)
+      .populate('members.user', '_id email fullName isLoggedIn lastLogin imageUrl')
+      .populate('channel', '_id name');
 };
 
 exports.updateWorkspace = (query, attributes) => {
@@ -49,18 +53,6 @@ exports.updateWorkspace = (query, attributes) => {
     });
 };
 
-exports.getUserFromMembers = (userId, members) => {
-    let currentMember = null;
-    members.forEach(item => {
-        if (userId.toString() === item.user._id.toString()) {
-            return currentMember = item;
-        }
-    });
-    return new Promise(resolve => {
-        return resolve(currentMember);
-    });
-};
-
 exports.deleteWorkspace = (wid) => {
     return workspaceModel.deleteOne({_id: wid}).then((result) => {
         if (result.deletedCount === 0) {
@@ -69,7 +61,7 @@ exports.deleteWorkspace = (wid) => {
         return { success: true };
     }).catch(err => {
         return { success: false, error: err };
-    })
+    });
 };
 
 
@@ -91,4 +83,37 @@ exports.addUserInWorkspace = (role, userId, workspaceId) => {
     }).catch(err => {
         return { success: false, error: err };
     });
+};
+
+exports.addChannelInWorkspace = (workspaceId, channelId) => {
+    return workspaceModel.update({ _id: workspaceId }, {
+        $push: {
+            channel: channelId
+        }
+    }).then((result) => {
+        if (result.nModified === 0) {
+            return { success: false, error: constants.COULDNT_ADD_CHANNEL_TO_THE_WORKSPACE };
+        }
+
+        return { success: true }
+    }).catch(err => {
+        return { success: false, error: err };
+    });
+};
+
+exports.deleteChannelFromWorkspace = (workspaceId, channelId) => {
+    return workspaceModel.update({ _id: workspaceId }, {
+        $pull: {
+            channel: channelId
+        }
+    }).then((result) => {
+        if (result.nModified === 0) {
+            return { success: false, error: constants.COULDNT_DELETE_CHANNEL_FROM_WORKSPACE };
+        }
+
+        return { success: true }
+    }).catch(err => {
+        return { success: false, error: err };
+    });
+
 };

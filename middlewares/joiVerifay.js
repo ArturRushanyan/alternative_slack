@@ -11,6 +11,9 @@ exports.Registration = (req, res, next) => {
     if (result.error) {
         return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
     }
+    req.body.email = result.value.email;
+    req.body.password = result.value.password;
+    req.body.fullName = result.value.fullName;
     next();
 };
 
@@ -20,6 +23,9 @@ exports.Login = (req, res, next) => {
     if (result.error) {
         return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
     }
+
+    req.body.email = result.value.email;
+    req.body.password = result.value.password;
     next();
 };
 
@@ -29,6 +35,7 @@ exports.resetPassword = (req, res, next) => {
     if (result.error) {
         return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
     }
+    req.body.password = result.value.password;
     next();
 };
 
@@ -38,6 +45,7 @@ exports.resetPasswordConfirmation = (req, res, next) => {
     if (result.error) {
         return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
     }
+    req.body.password = result.value.password;
     next();
 };
 
@@ -47,6 +55,7 @@ exports.createWorkspace = (req, res, next) => {
     if (result.error) {
         return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
     }
+    req.body.name = result.value.name;
     next();
 };
 
@@ -70,6 +79,7 @@ exports.updateWorkspace = (req, res, next) => {
     if (result.error) {
         return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
     }
+    req.body.name = result.value.name;
     next();
 };
 
@@ -89,6 +99,64 @@ exports.addUserToWorkspace = (req, res, next) => {
       email: req.body.email,
     };
     const schema = Schema.addUserToWorkspace;
+    const result = schema.validate(data);
+
+    if (result.error) {
+        return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
+    }
+    req.body.email = result.value.email;
+    req.body.role =  result.value.role;
+    next();
+};
+
+exports.createChannel = (req, res, next) => {
+    const data = {
+      name: req.body.name,
+      workspaceId: req.body.workspaceId || req.params.workspaceId
+    };
+
+    const schema = Schema.createChannel;
+    const result = schema.validate(data);
+
+    if (result.error) {
+        return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
+    }
+    req.body.name = result.value.name;
+    next();
+};
+
+exports.getChannel = (req, res, next) => {
+    const schema = Schema.getChannel;
+    const result = schema.validate(req.params);
+
+    if (result.error) {
+        return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
+    }
+    next();
+};
+
+exports.updateChannel = (req, res, next) => {
+    const data = {
+      name: req.body.name,
+      channelId: req.params.channelId
+    };
+    const schema = Schema.updateChannel;
+    const result = schema.validate(data);
+
+    if (result.error) {
+        return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
+    }
+    req.body.name = result.value.name;
+    next();
+};
+
+exports.deleteChannel = (req, res, next) => {
+    const data = {
+        channelId: req.params.channelId,
+        workspaceId: req.body.workspaceId
+    };
+
+    const schema = Schema.deleteChannel;
     const result = schema.validate(data);
 
     if (result.error) {

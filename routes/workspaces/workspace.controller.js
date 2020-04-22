@@ -1,10 +1,19 @@
 import Error from '../../helpers/Error';
+import * as util from '../../helpers/utils';
 
-import * as constants from '../../helpers/constants';
+import {
+    CHANNEL_USERS_ROLES,
+    ALREADY_EXISTS,
+    NOT_EXISTS,
+    SOMETHING_WENT_WRONG,
+    WORKSPACE_DOES_NOT_EXIST,
+    USER_SUCCESSFULLY_ADD,
+} from '../../helpers/constants';
 
 // Services
 import * as userService from '../../services/userService';
 import * as workspaceService from '../../services/workspaceService';
+import * as channelService from '../../services/channelService';
 
 exports.create = (req, res, next) => {
     const { user } = req;
@@ -12,21 +21,25 @@ exports.create = (req, res, next) => {
 
     userService.findUserByEmail(user.email).then((user) => {
         if (!user) {
-            throw { status: 400, message: constants.NOT_EXISTS('user') };
+            throw { status: 400, message: NOT_EXISTS('user') };
         }
 
         return workspaceService.findWorkspace({ name: name });
     }).then((workspace) => {
         if (!workspace.success && workspace.error) {
-            throw { status: 500, message: workspace.error };
+            throw {status: 500, message: workspace.error};
         } else if (workspace.success) {
-            throw { status: 409, message: constants.ALREADY_EXISTS('workspace with current name') };
+            throw {status: 409, message: ALREADY_EXISTS('workspace with current name')};
         }
-
-        return workspaceService.createWorkspace(name, user, 'owner');
+        return channelService.createChannel('general', user, CHANNEL_USERS_ROLES.OWNER,true);
+    }).then((channel) => {
+        if (!channel) {
+            throw { status: 500, message: SOMETHING_WENT_WRONG };
+        }
+        return workspaceService.createWorkspace(name, user, 'owner', channel);
     }).then((workspace) => {
         if (!workspace) {
-            throw { status: 500, message: constants.SOMETHING_WENT_WRONG }
+            throw { status: 500, message: SOMETHING_WENT_WRONG }
         }
 
         return res.status(200).json({ success: true , workspace });
@@ -40,7 +53,7 @@ exports.get = (req, res, next) => {
 
     workspaceService.getWorkspace({ _id: workspaceId }).then((workspace) => {
         if (!workspace) {
-            throw { status: 404, message: constants.WORKSPACE_DOES_NOT_EXIST(workspaceId) };
+            throw { status: 404, message: WORKSPACE_DOES_NOT_EXIST(workspaceId) };
         }
 
         return  res.status(200).json({ workspace });
@@ -59,14 +72,14 @@ exports.update = (req, res, next) => {
 
     workspaceService.getWorkspace({ _id: workspaceId }).then((result) => {
         if (!result) {
-            throw {status: 404, message: constants.WORKSPACE_DOES_NOT_EXIST(workspaceId)}
+            throw {status: 404, message: WORKSPACE_DOES_NOT_EXIST(workspaceId)}
         }
 
         return workspaceService.updateWorkspace({_id: workspaceId}, attributes);
     }).then((updatedWorkspace) => {
 
         if (!updatedWorkspace.success || updatedWorkspace.err) {
-            throw { status: 500, message: updatedWorkspace.error || constants.SOMETHING_WENT_WRONG };
+            throw { status: 500, message: updatedWorkspace.error || SOMETHING_WENT_WRONG };
         }
 
         return res.status(200).json({
@@ -84,7 +97,7 @@ exports.delete = (req, res, next) => {
 
     return workspaceService.deleteWorkspace(workspaceId).then((result) => {
         if (!result.success || result.err) {
-            throw { status: 400, message: result.err || constants.SOMETHING_WENT_WRONG };
+            throw { status: 500, message: result.err || SOMETHING_WENT_WRONG };
         }
 
         return res.status(200).json({ success: true });
@@ -101,10 +114,11 @@ exports.addUser = (req, res, next) => {
 
     userService.findUserByEmail(email).then((user) => {
         if (!user) {
-            throw { status: 404, message: constants.NOT_EXISTS(`user with ${email}`) }
+            throw { status: 404, message: NOT_EXISTS(`user with ${email}`) }
         }
         targetUser = user;
-        return workspaceService.getUserFromMembers(user._id, req.workspace.members);
+
+        return util.getUserFromMembers(user._id, req.workspace.members);
     }).then((member) =>{
         if (member) {
             throw { status: 409, message: `user with ${email} exists in the current workspace` };
@@ -113,10 +127,10 @@ exports.addUser = (req, res, next) => {
         return workspaceService.addUserInWorkspace(role, targetUser._id, workspaceId);
     }).then((result) => {
         if (!result.success || result.err) {
-            throw { status: 400, message: result.err || constants.SOMETHING_WENT_WRONG };
+            throw { status: 400, message: result.err || SOMETHING_WENT_WRONG };
         }
 
-        return res.status(200).json({ success: true, message: constants.USER_SUCCESSFULLY_ADD });
+        return res.status(200).json({ success: true, message: USER_SUCCESSFULLY_ADD });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
     })
