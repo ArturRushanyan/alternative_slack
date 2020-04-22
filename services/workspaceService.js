@@ -1,4 +1,5 @@
 import workspaceModel from '../models/Workspace';
+import channelModel from '../models/Channel';
 import * as constants from '../helpers/constants';
 
 exports.getPermissions = (operationType) => {
@@ -54,13 +55,22 @@ exports.updateWorkspace = (query, attributes) => {
 };
 
 exports.deleteWorkspace = (wid) => {
-    return workspaceModel.deleteOne({_id: wid}).then((result) => {
-        if (result.deletedCount === 0) {
-            return { success: false, error: constants.COULDNT_DELETE_WORKSPACE };
-        }
-        return { success: true };
-    }).catch(err => {
-        return { success: false, error: err };
+    return new Promise(resolve => {
+        workspaceModel.findById(wid, (err, workspace) => {
+            channelModel.remove({
+                "_id": {
+                    $in: workspace.channel
+                }
+            }, err => {
+                if (err) {
+                    let err = { success: false, message: err };
+                    resolve(err);
+                }
+                workspace.remove();
+                let success = { success: true };
+                resolve(success);
+            });
+        });
     });
 };
 

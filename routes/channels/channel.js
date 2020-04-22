@@ -13,6 +13,5 @@ router.post('/', passport.authenticate('jwt', { session: false }), validateWithJ
 router.get('/:channelId', passport.authenticate('jwt', { session: false }), validateWithJoi.getChannel, checkCredentials('get'), channel.get);
 router.patch('/:channelId', passport.authenticate('jwt', { session: false }), validateWithJoi.updateChannel, checkCredentials('update'), channel.update);
 router.delete('/:channelId', passport.authenticate('jwt', { session: false }), validateWithJoi.deleteChannel, checkCredentials('delete'), channel.delete);
-// delete channel
 
 export default router;

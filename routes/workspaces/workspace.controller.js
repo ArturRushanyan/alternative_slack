@@ -91,7 +91,6 @@ exports.update = (req, res, next) => {
     });
 };
 
-
 exports.delete = (req, res, next) => {
     const { workspaceId } = req.params;
 
