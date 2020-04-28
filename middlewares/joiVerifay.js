@@ -164,3 +164,19 @@ exports.deleteChannel = (req, res, next) => {
     }
     next();
 };
+
+exports.updateUser = (req, res, next) => {
+    const schema = Schema.updateUser;
+    const result = schema.validate(req.body);
+
+    if (result.error) {
+        return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
+    }
+
+    req.body.fullName = result.value.fullName;
+    req.body.email = result.value.email;
+
+    next();
+};
+
+

@@ -1,5 +1,8 @@
 import Joi from '@hapi/joi';
 
+import { DEFAULT_AVATAR_IMAGE } from '../helpers/constants';
+
+
 module.exports = {
     SignUp: Joi.object().keys({
         email: Joi.string().email().required().min(5).max(40).trim(),
@@ -61,6 +64,11 @@ module.exports = {
     deleteChannel: Joi.object().keys({
         channelId: Joi.string().required(),
         workspaceId: Joi.string().required(),
+    }),
+
+    updateUser: Joi.object().keys({
+        email: Joi.string().email().required().min(5).max(40).trim(),
+        fullName: Joi.string().required().min(3).max(50).trim(),
     }),
 };
 

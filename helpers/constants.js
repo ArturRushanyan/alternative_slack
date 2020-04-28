@@ -2,8 +2,8 @@
 export const PASSWORD_RESET_REASON = "reset_password";
 export const INVITE_USER_REASON = "invite_user";
 
-export const DEFAULT_AVATAR_IMAGE = '../images/userAvatar/defaultAvatar.png';
-export const DEFAULT_WORKSPACE_LOGO = '../images/workspacesLogos/workspacesDefault.png';
+export const DEFAULT_AVATAR_IMAGE = 'images/defaultLogos/defaultAvatar.png';
+export const DEFAULT_WORKSPACE_LOGO = 'images/defaultLogos/workspacesDefault.png';
 
 export const JWT_SECRET_KEY = 'supersecret';
 
