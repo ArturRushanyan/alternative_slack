@@ -11,14 +11,14 @@ exports.getPermissions = (operationType) => {
         default: return [];
     }
 };
-exports.createChannel = (name, user, role, workspaceId, isDefault = false) => {
+exports.createChannel = (params) => {
 
     let channel = new channelModel({
-        name,
-        owner: user._id,
-        members: { role: role, user: user._id },
-        workspaceId,
-        isDefault: isDefault
+        name: params.name,
+        owner: params.user._id,
+        members: { role: params.role, user: params.user._id },
+        isDefault: params.isDefault || false,
+        workspaceId: params.workspaceId || null,
     });
 
     return channel.save();
@@ -57,6 +57,26 @@ exports.deleteChannel = (cid, workspaceId) => {
             return { success: false, error: constants.COULDNT_DELETE_CHANNEL };
         }
         return { success: true };
+    }).catch(err => {
+        return { success: false, error: err };
+    });
+};
+
+exports.addUserInChannel = (query, userId) => {
+    let newMember = {
+        role: 'member',
+        user: userId
+    };
+    return channelModel.update(query, {
+        $push: {
+            members: newMember
+        }
+    }).then(result => {
+        if (result.nModified === 0) {
+            return { success: false, error: constants.SOMETHING_WENT_WRONG };
+        }
+
+        return { success: true }
     }).catch(err => {
         return { success: false, error: err };
     });

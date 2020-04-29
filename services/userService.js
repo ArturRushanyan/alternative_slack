@@ -1,8 +1,4 @@
 import userModel from '../models/User';
-import fs from 'fs';
-import * as constants from "../helpers/constants";
-import workspaceModel from "../models/Workspace";
-import channelModel from "../models/Channel";
 
 exports.findUserByEmail = (email) => {
     return userModel.findOne({ email });
@@ -59,7 +55,7 @@ exports.updateUser = (data) => {
 };
 
 exports.updateUserAvatar = (user, path) => {
-    return userModel.findOneAndUpdate({ _id: user._id }, { imageUrl: '/' + path }, { new: true }).then(result => {
+    return userModel.findOneAndUpdate({ _id: user._id }, { imageUrl: path }, { new: true }).then(result => {
         if (!result) {
             return { success: false };
         }

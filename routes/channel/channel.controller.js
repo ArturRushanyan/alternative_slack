@@ -20,8 +20,14 @@ exports.create = (req, res, next) => {
         } else if (!channel.success && channel.error) {
             throw { status: 500, message: channel.error};
         }
+        let params = {
+            name,
+            user,
+            role: CHANNEL_USERS_ROLES.OWNER,
+            workspaceId
+        };
 
-        return channelService.createChannel(name, user, CHANNEL_USERS_ROLES.OWNER, workspaceId);
+        return channelService.createChannel(params);
     }).then((channel) => {
         if (!channel) {
             throw {status: 500, message: SOMETHING_WENT_WRONG}

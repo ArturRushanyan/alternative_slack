@@ -24,15 +24,19 @@ exports.create = (req, res, next) => {
     let workspace;
     let channel;
 
-
     workspaceService.findWorkspace({ name: name}).then((workspace) => {
         if (!workspace.success && workspace.error) {
             throw {status: 500, message: workspace.error};
         } else if (workspace.success) {
             throw {status: 409, message: ALREADY_EXISTS('workspace with current name')};
         }
-
-        return channelService.createChannel('general', user, CHANNEL_USERS_ROLES.OWNER,true);
+        let params = {
+            name: 'general',
+            user,
+            role: CHANNEL_USERS_ROLES.OWNER,
+            isDefault: true
+        };
+        return channelService.createChannel(params);
     }).then((createdChannel) => {
         if (!createdChannel) {
             throw { status: 500, message: SOMETHING_WENT_WRONG };
@@ -53,7 +57,10 @@ exports.create = (req, res, next) => {
         }
         return channelService.updateChannel({ _id: channel._id }, { workspaceId: workspace._id });
     }).then((result) => {
-        console.log('result after channel update =>>', result);
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
         return res.status(200).json({ success: true , workspace });
     }).catch(err => {
         console.log('er =>>>>>', err);
@@ -142,10 +149,16 @@ exports.addUser = (req, res, next) => {
 
         return workspaceService.addUserInWorkspace(role, targetUser._id, workspaceId);
     }).then((result) => {
-        if (!result.success || result.err) {
+        if (!result.success) {
             throw {status: 400, message: result.err || SOMETHING_WENT_WRONG};
         }
         return userWorkspaceService.addUserWorkspace(targetUser, workspaceId);
+    }).then((result) => {
+        if (!result.success) {
+            throw {status: 500, message: result.error || SOMETHING_WENT_WRONG};
+        }
+
+        return channelService.addUserInChannel({ workspaceId, isDefault: true }, targetUser._id);
     }).then(() => {
         return res.status(200).json({ success: true, message: USER_SUCCESSFULLY_ADD });
     }).catch(err => {

@@ -18,6 +18,7 @@ import {SOMETHING_WENT_WRONG} from "../../helpers/constants";
 
 exports.SignUp = (req, res, next) => {
     let createdUser;
+    let workspaces;
 
     userService.findUserByEmail(req.body.email).then(user => {
         if(user) {
@@ -42,15 +43,24 @@ exports.SignUp = (req, res, next) => {
         return userWorkspaceService.createUserWorkspace(user._id);
     }).then((result) => {
         if (!result) {
+            throw {status: 500, message: SOMETHING_WENT_WRONG};
+        }
+
+        return userWorkspaceService.getUserWorkspaces(createdUser._id);
+    }).then((userWorkspaces) => {
+        if (!userWorkspaces) {
             throw { status: 500, message: SOMETHING_WENT_WRONG };
         }
 
-        return Token.generateAuthToken(createdUser._id)
+        workspaces = userWorkspaces;
+
+        return Token.generateAuthToken(createdUser._id);
     }).then(authToken => {
        return res.status(200).json({
            success: true,
            access_token: authToken,
-           user: createdUser
+           user: createdUser,
+           workspaces,
        });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
