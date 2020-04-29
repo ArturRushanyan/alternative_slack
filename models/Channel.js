@@ -7,7 +7,6 @@ const channelSchema = new Schema({
     name: {
         type: String,
         required: true,
-        unique: true,
     },
     owner: {
         type: Schema.Types.ObjectId,
@@ -26,6 +25,10 @@ const channelSchema = new Schema({
             required: true,
         }
     }],
+    workspaceId: {
+        type: String,
+        default: null,
+    },
     isDefault: {
         type: Boolean
     },

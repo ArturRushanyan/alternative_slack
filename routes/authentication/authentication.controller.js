@@ -12,6 +12,8 @@ import * as constants from '../../helpers/constants';
 // Services
 import * as tokenService  from '../../services/tokenService';
 import * as userService from '../../services/userService';
+import * as userWorkspaceService from '../../services/userWorkspaceService';
+import {SOMETHING_WENT_WRONG} from "../../helpers/constants";
 
 
 exports.SignUp = (req, res, next) => {
@@ -32,12 +34,18 @@ exports.SignUp = (req, res, next) => {
 
         return userService.createUser(newUser);
     }).then((user) => {
-        if(!user) {
-            throw { status: 500, message: constants.SOMETHING_WENT_WRONG };
+        if (!user) {
+            throw {status: 500, message: constants.SOMETHING_WENT_WRONG};
         }
         createdUser = user;
 
-        return Token.generateAuthToken(res, user._id)
+        return userWorkspaceService.createUserWorkspace(user._id);
+    }).then((result) => {
+        if (!result) {
+            throw { status: 500, message: SOMETHING_WENT_WRONG };
+        }
+
+        return Token.generateAuthToken(createdUser._id)
     }).then(authToken => {
        return res.status(200).json({
            success: true,
@@ -65,7 +73,7 @@ exports.Login = (req, res, next) => {
             throw  { status: 403, message: constants.INCORRECT_PASSWORD };
         }
 
-        return Token.generateAuthToken(res, user._id)
+        return Token.generateAuthToken(user._id)
     }).then(token => {
         authToken = token;
         let attributes = {
@@ -76,13 +84,22 @@ exports.Login = (req, res, next) => {
         return userService.findUserAndUpdate({ _id: user._id }, attributes);
     }).then(updatedUser => {
         if (!updatedUser.success) {
-            throw { status: 500, message: constants.SOMETHING_WENT_WRONG };
+            throw {status: 500, message: constants.SOMETHING_WENT_WRONG};
+        }
+
+        user = updatedUser;
+
+        return userWorkspaceService.getUserWorkspaces(user.userData._id);
+    }).then((workspaces) => {
+        if (!workspaces) {
+            throw { status: 500, message: SOMETHING_WENT_WRONG };
         }
 
         return res.status(200).json({
             success: true,
             access_token: authToken,
-            user: updatedUser.userData
+            user,
+            workspaces,
         });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
@@ -151,7 +168,7 @@ exports.resetPassword = (req, res, next) => {
 exports.resetPasswordConfirmation = (req, res, next) => {
     const { token } = req.params;
     const { password } = req.body;
-    let userData;
+    let tokenData;
 
     tokenService.getByTokenAndReason(token, constants.PASSWORD_RESET_REASON).then(token => {
         if (!token.token || !token.user) {
@@ -161,25 +178,24 @@ exports.resetPasswordConfirmation = (req, res, next) => {
         if (moment(token.expiration, "YYYY-MM-DD HH:mm:ss").isBefore(moment().format("YYYY-MM-DD HH:mm:ss"))) {
             throw { status: 409, message: constants.EXPIRED_TOKEN }
         }
-        userData = token;
+        tokenData = token;
 
         return hash.hasingPassword(password);
-
     }).then((newPassword) => {
-        return userService.findUserAndUpdate({ email: userData.user.email }, { password: newPassword });
 
+        return userService.findUserAndUpdate({ email: tokenData.user.email }, { password: newPassword });
     }).then((result) => {
         if (!result.success) {
             throw {status: 500, message: result.error};
         }
-        return tokenService.findTokenByIdAndDelete(userData._id);
 
+        return tokenService.findTokenByIdAndDelete(tokenData._id);
     }).then((result) => {
         if (!result.success) {
             throw { status: 500, message: result.error };
         }
-        return res.status(200).json({ success: true, message: constants.PASSWORD_UPDATED })
 
+        return res.status(200).json({ success: true, message: constants.PASSWORD_UPDATED })
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
     })

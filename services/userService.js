@@ -1,5 +1,8 @@
 import userModel from '../models/User';
 import fs from 'fs';
+import * as constants from "../helpers/constants";
+import workspaceModel from "../models/Workspace";
+import channelModel from "../models/Channel";
 
 exports.findUserByEmail = (email) => {
     return userModel.findOne({ email });
@@ -22,9 +25,10 @@ exports.createUser = (data) => {
 
 exports.findUserAndUpdate = (query, attributes) => {
     return userModel.findOneAndUpdate(query, attributes, { new: true }).then(result => {
-       if (result) {
-           return { success: true, userData: result };
+       if (!result) {
+           return { success: false }
        }
+        return { success: true, userData: result };
     }).catch(err => {
         return { success: false, error: err }
     });

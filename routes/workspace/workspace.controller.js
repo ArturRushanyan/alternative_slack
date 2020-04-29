@@ -14,36 +14,49 @@ import {
 import * as userService from '../../services/userService';
 import * as workspaceService from '../../services/workspaceService';
 import * as channelService from '../../services/channelService';
+import * as userWorkspaceService from '../../services/userWorkspaceService';
+
+
 
 exports.create = (req, res, next) => {
     const { user } = req;
     const name = req.body.name;
+    let workspace;
+    let channel;
 
-    userService.findUserByEmail(user.email).then((user) => {
-        if (!user) {
-            throw { status: 400, message: NOT_EXISTS('user') };
-        }
 
-        return workspaceService.findWorkspace({ name: name });
-    }).then((workspace) => {
+    workspaceService.findWorkspace({ name: name}).then((workspace) => {
         if (!workspace.success && workspace.error) {
             throw {status: 500, message: workspace.error};
         } else if (workspace.success) {
             throw {status: 409, message: ALREADY_EXISTS('workspace with current name')};
         }
+
         return channelService.createChannel('general', user, CHANNEL_USERS_ROLES.OWNER,true);
-    }).then((channel) => {
-        if (!channel) {
+    }).then((createdChannel) => {
+        if (!createdChannel) {
             throw { status: 500, message: SOMETHING_WENT_WRONG };
         }
-        return workspaceService.createWorkspace(name, user, 'owner', channel);
-    }).then((workspace) => {
-        if (!workspace) {
+        channel = createdChannel;
+
+        return workspaceService.createWorkspace(name, user, 'owner', createdChannel);
+    }).then((result) => {
+        if (!result) {
             throw { status: 500, message: SOMETHING_WENT_WRONG }
         }
+        workspace = result;
 
+        return userWorkspaceService.addUserWorkspace(user, workspace._id);
+    }).then((result) => {
+        if (!result.success) {
+            throw {status: 500, message: result.error};
+        }
+        return channelService.updateChannel({ _id: channel._id }, { workspaceId: workspace._id });
+    }).then((result) => {
+        console.log('result after channel update =>>', result);
         return res.status(200).json({ success: true , workspace });
     }).catch(err => {
+        console.log('er =>>>>>', err);
         return Error.errorHandler(res, err.status, err.message);
     });
 };
@@ -93,8 +106,12 @@ exports.update = (req, res, next) => {
 
 exports.delete = (req, res, next) => {
     const { workspaceId } = req.params;
-
-    return workspaceService.deleteWorkspace(workspaceId).then((result) => {
+    userWorkspaceService.deleteUserWorkspace(req.workspace).then(result => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+        return workspaceService.deleteWorkspace(workspaceId);
+    }).then((result) => {
         if (!result.success || result.err) {
             throw { status: 500, message: result.err || SOMETHING_WENT_WRONG };
         }
@@ -126,9 +143,10 @@ exports.addUser = (req, res, next) => {
         return workspaceService.addUserInWorkspace(role, targetUser._id, workspaceId);
     }).then((result) => {
         if (!result.success || result.err) {
-            throw { status: 400, message: result.err || SOMETHING_WENT_WRONG };
+            throw {status: 400, message: result.err || SOMETHING_WENT_WRONG};
         }
-
+        return userWorkspaceService.addUserWorkspace(targetUser, workspaceId);
+    }).then(() => {
         return res.status(200).json({ success: true, message: USER_SUCCESSFULLY_ADD });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);

@@ -1,6 +1,7 @@
 import Error from '../../helpers/Error';
 import { SOMETHING_WENT_WRONG, DEFAULT_AVATAR_IMAGE } from '../../helpers/constants';
 
+import * as userWorkspaceService from '../../services/userWorkspaceService';
 import * as userService from '../../services/userService';
 import * as utils from '../../helpers/utils';
 
@@ -21,7 +22,7 @@ exports.update = (req, res, next) => {
     userService.updateUser(req.body).then((updatedUser) => {
         return userService.findUserAndUpdate({ _id: user._id }, updatedUser);
     }).then((result) => {
-        if (!result.success || !result) {
+        if (!result.success) {
             throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
         }
 
@@ -65,6 +66,20 @@ exports.deleteImage = (req, res, next) => {
         utils.deleteImage(req.file.path);
         return Error.errorHandler(res, err.status, err.message || err);
     })
+};
+
+exports.getWorkspaces = (req, res, next) => {
+    const { user } = req;
+
+    userWorkspaceService.getUserWorkspaces(user._id).then(result => {
+        if (!result) {
+            throw { status: 500, message: SOMETHING_WENT_WRONG };
+        }
+
+        return res.status(200).json({ workspaces: result });
+    }).catch(err => {
+        return Error.errorHandler(res, err.status, err.message);
+    });
 };
 
 

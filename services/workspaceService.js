@@ -1,5 +1,6 @@
 import workspaceModel from '../models/Workspace';
 import channelModel from '../models/Channel';
+import userModel from '../models/User';
 import * as constants from '../helpers/constants';
 
 exports.getPermissions = (operationType) => {
@@ -18,6 +19,7 @@ exports.findWorkspace = (query) => {
        if (!workspace) {
            return { success: false };
        }
+
        return { success: true };
     }).catch(err => {
         return { success: false, error: err };
@@ -33,7 +35,9 @@ exports.createWorkspace = (name, user, role, channel) => {
         channel: channel._id
     });
 
-    return workspace.save();
+    return workspace.save().then((result) => {
+        return result;
+    });
 };
 
 exports.getWorkspace = (query) => {
@@ -69,11 +73,10 @@ exports.deleteWorkspace = (wid) => {
                 workspace.remove();
                 let success = { success: true };
                 resolve(success);
-            });
+            })
         });
     });
 };
-
 
 exports.addUserInWorkspace = (role, userId, workspaceId) => {
     let newMember = {

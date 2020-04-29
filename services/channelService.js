@@ -8,15 +8,16 @@ exports.getPermissions = (operationType) => {
         case 'update' : return constants.CHANNEL_OPERATION_PERMISSIONS.UPDATE;
         case 'delete' : return constants.CHANNEL_OPERATION_PERMISSIONS.DELETE;
         // case 'addUser': return constants.WORKSPACE_OPERATION_PERMISSIONS.ADD_USER;
-        // case 'createChannel': return constants.WORKSPACE_OPERATION_PERMISSIONS.CREATE_CHANNEL;
         default: return [];
     }
 };
-exports.createChannel = (name, user, role, isDefault = false) => {
+exports.createChannel = (name, user, role, workspaceId, isDefault = false) => {
+
     let channel = new channelModel({
         name,
         owner: user._id,
         members: { role: role, user: user._id },
+        workspaceId,
         isDefault: isDefault
     });
 
@@ -50,8 +51,8 @@ exports.updateChannel = (query, attributes) => {
     });
 };
 
-exports.deleteChannel = (cid) => {
-    return channelModel.deleteOne({_id: cid}).then((result) => {
+exports.deleteChannel = (cid, workspaceId) => {
+    return channelModel.deleteOne({_id: cid, workspaceId}).then((result) => {
         if (result.deletedCount === 0) {
             return { success: false, error: constants.COULDNT_DELETE_CHANNEL };
         }

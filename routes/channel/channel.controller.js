@@ -14,24 +14,23 @@ exports.create = (req, res, next) => {
     const { user } = req;
     let createdChannel;
 
-    channelService.findChannel({ name }).then((channel) => {
+    channelService.findChannel({ name, workspaceId }).then((channel) => {
         if (channel.success) {
             throw { status: 400, message: ALREADY_EXISTS(`channel with ${name} name is`) };
-        }
-
-        if (!channel.success && channel.error) {
+        } else if (!channel.success && channel.error) {
             throw { status: 500, message: channel.error};
         }
 
-        return channelService.createChannel(name, user, CHANNEL_USERS_ROLES.OWNER);
+        return channelService.createChannel(name, user, CHANNEL_USERS_ROLES.OWNER, workspaceId);
     }).then((channel) => {
         if (!channel) {
             throw {status: 500, message: SOMETHING_WENT_WRONG}
         }
         createdChannel = channel;
+
         return workspaceService.addChannelInWorkspace(workspaceId, channel._id);
     }).then((result) => {
-        if (!result.success || result.err) {
+        if (!result.success) {
             throw { status: 400, message: result.err || SOMETHING_WENT_WRONG };
         }
 
@@ -58,14 +57,11 @@ exports.update = (req, res, next) => {
     };
 
     channelService.updateChannel({ _id: channelId }, attributes).then(result => {
-        if (!result.success || result.error) {
+        if (!result.success) {
             throw { status: 500, message: result.error || SOMETHING_WENT_WRONG }
         }
 
-        return res.status(200).json({
-            success: true,
-            channel: result.channel
-        });
+        return res.status(200).json({ success: true, channel: result.channel });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
     })
@@ -79,14 +75,13 @@ exports.delete = (req, res, next) => {
         return Error.errorHandler(res, 400, PERMISSION_DENIED);
     }
 
-    channelService.deleteChannel(channelId).then(result => {
-        if (!result.success || result.error) {
+    channelService.deleteChannel(channelId, workspaceId).then(result => {
+        if (!result.success) {
             throw {status: 500, message: result.error || SOMETHING_WENT_WRONG};
         }
 
         return workspaceService.deleteChannelFromWorkspace(workspaceId, channelId);
     }).then((result) => {
-
         if (!result.success || result.error) {
             throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
         }

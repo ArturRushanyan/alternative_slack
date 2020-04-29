@@ -5,10 +5,14 @@ import Error from '../helpers/Error';
 import config from '../config';
 import * as constants from '../helpers/constants';
 
-exports.generateAuthToken = (res, userId) => {
+exports.generateAuthToken = (userId) => {
     return new Promise((resolve, reject) => {
         if (!userId) {
-            reject(Error.errorHandler(res, 400, constants.MISSING_USER_ID));
+            const err = {
+                status: 400,
+                message: constants.MISSING_USER_ID
+            };
+            reject(err);
         }
         resolve(JWT.sign({ _id: userId }, config.JWT_SECRET_KEY, { expiresIn: '1h' }));
     });

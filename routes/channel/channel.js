@@ -8,7 +8,7 @@ import checkCredentials from '../../middlewares/checkCredentials/channel';
 
 const router = express.Router();
 
-// create channel
+
 router.post('/', passport.authenticate('jwt', { session: false }), validateWithJoi.createChannel, workspaceCredentials('createChannel'), channel.create);
 router.get('/:channelId', passport.authenticate('jwt', { session: false }), validateWithJoi.getChannel, checkCredentials('get'), channel.get);
 router.patch('/:channelId', passport.authenticate('jwt', { session: false }), validateWithJoi.updateChannel, checkCredentials('update'), channel.update);
