@@ -14,8 +14,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(logger('dev'));
-app.use('/images', express.static(path.join('./images')));
-app.set('images', __dirname + './images');
+app.use('/images', express.static('images'));
 
 app.use(passport.initialize());
 require('./middlewares/passport')(passport);

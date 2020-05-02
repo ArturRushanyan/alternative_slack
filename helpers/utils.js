@@ -19,7 +19,7 @@ exports.deleteImage = (imageUrl) => {
         success: true,
     };
     return new Promise((resolve, reject) => {
-        if (imageUrl === '/' + DEFAULT_WORKSPACE_LOGO || imageUrl === '/' + DEFAULT_AVATAR_IMAGE) {
+        if (imageUrl === DEFAULT_WORKSPACE_LOGO || imageUrl === DEFAULT_AVATAR_IMAGE) {
             return resolve(result);
         }
         fs.unlink('./' + imageUrl, (err) => {

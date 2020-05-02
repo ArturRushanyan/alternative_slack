@@ -1,4 +1,5 @@
 import userModel from '../models/User';
+import {DEFAULT_AVATAR_IMAGE} from "../helpers/constants";
 
 exports.findUserByEmail = (email) => {
     return userModel.findOne({ email });
@@ -55,6 +56,9 @@ exports.updateUser = (data) => {
 };
 
 exports.updateUserAvatar = (user, path) => {
+    if (path !== DEFAULT_AVATAR_IMAGE) {
+        path = '/' + path;
+    }
     return userModel.findOneAndUpdate({ _id: user._id }, { imageUrl: path }, { new: true }).then(result => {
         if (!result) {
             return { success: false };
