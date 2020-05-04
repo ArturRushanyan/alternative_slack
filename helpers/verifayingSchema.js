@@ -70,5 +70,9 @@ module.exports = {
         email: Joi.string().email().required().min(5).max(40).trim(),
         fullName: Joi.string().required().min(3).max(50).trim(),
     }),
+
+    updateImage: Joi.object().keys({
+        type: Joi.string().valid('user','workspace'),
+    }),
 };
 

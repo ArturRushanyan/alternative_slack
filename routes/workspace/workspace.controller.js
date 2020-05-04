@@ -7,7 +7,7 @@ import {
     NOT_EXISTS,
     SOMETHING_WENT_WRONG,
     WORKSPACE_DOES_NOT_EXIST,
-    USER_SUCCESSFULLY_ADD,
+    USER_SUCCESSFULLY_ADD, DEFAULT_AVATAR_IMAGE, DEFAULT_WORKSPACE_LOGO,
 } from '../../helpers/constants';
 
 // Services
@@ -163,5 +163,42 @@ exports.addUser = (req, res, next) => {
         return res.status(200).json({ success: true, message: USER_SUCCESSFULLY_ADD });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
+    })
+};
+
+exports.updateImage = (req, res, next) => {
+    util.deleteImage(req.workspace.imageUrl).then((result) => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+        return workspaceService.updateWorkspaceLogo(req.workspace, req.file.path);
+    }).then(result => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return res.status(200).json({ success: true, workspace: result.workspaceData });
+    }).catch(err => {
+        utils.deleteImage(req.file.path);
+        return Error.errorHandler(res, err.status, err.message);
+    });
+};
+
+exports.deleteImage = (req, res, next) => {
+    util.deleteImage(req.workspace.imageUrl).then((result) => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+        return workspaceService.updateWorkspaceLogo(req.workspace, DEFAULT_WORKSPACE_LOGO);
+    }).then((result) => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return res.status(200).json({ success: true, user: result.userData });
+    }).catch(err => {
+        console.log('err in catch =>>>>', err);
+        util.deleteImage(req.file.path);
+        return Error.errorHandler(res, err.status, err.message || err);
     })
 };

@@ -1,7 +1,7 @@
 import workspaceModel from '../models/Workspace';
 import channelModel from '../models/Channel';
-import userModel from '../models/User';
 import * as constants from '../helpers/constants';
+import { DEFAULT_WORKSPACE_LOGO } from "../helpers/constants";
 
 exports.getPermissions = (operationType) => {
     switch (operationType) {
@@ -10,6 +10,8 @@ exports.getPermissions = (operationType) => {
         case 'delete' : return constants.WORKSPACE_OPERATION_PERMISSIONS.DELETE;
         case 'addUser': return constants.WORKSPACE_OPERATION_PERMISSIONS.ADD_USER;
         case 'createChannel': return constants.WORKSPACE_OPERATION_PERMISSIONS.CREATE_CHANNEL;
+        case 'updateImage': return constants.WORKSPACE_OPERATION_PERMISSIONS.UPDATE_IMAGE;
+        case 'deleteImage': return constants.WORKSPACE_OPERATION_PERMISSIONS.DELETE_IMAGE;
         default: return [];
     }
 };
@@ -129,4 +131,18 @@ exports.deleteChannelFromWorkspace = (workspaceId, channelId) => {
         return { success: false, error: err };
     });
 
+};
+
+exports.updateWorkspaceLogo = (workspace, path) => {
+    if (path !== DEFAULT_WORKSPACE_LOGO) {
+        path = '/' + path;
+    }
+    return workspaceModel.findOneAndUpdate({ _id: workspace._id }, { imageUrl: path }, { new: true }).then(result => {
+        if (!result) {
+            return { success: false };
+        }
+        return { success: true, workspaceData: result };
+    }).catch(err => {
+        return { success: false, error: err }
+    });
 };

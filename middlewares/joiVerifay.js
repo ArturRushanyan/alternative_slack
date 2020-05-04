@@ -170,12 +170,22 @@ exports.updateUser = (req, res, next) => {
     const result = schema.validate(req.body);
 
     if (result.error) {
+        console.log('result error =>>>>', result.error);
         return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
     }
 
     req.body.fullName = result.value.fullName;
     req.body.email = result.value.email;
 
+    next();
+};
+
+exports.updateImage = (req, res, next) => {
+    const schema = Schema.updateImage;
+    const result = schema.validate(req.query);
+    if (result.error) {
+        return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
+    }
     next();
 };
 

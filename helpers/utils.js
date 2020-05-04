@@ -22,9 +22,10 @@ exports.deleteImage = (imageUrl) => {
         if (imageUrl === DEFAULT_WORKSPACE_LOGO || imageUrl === DEFAULT_AVATAR_IMAGE) {
             return resolve(result);
         }
-        fs.unlink('./' + imageUrl, (err) => {
+        fs.unlink('.' + imageUrl, (err) => {
             if (err) {
                 result = { status: 500, message: err };
+                console.log('in func err =>>>', err);
                 return reject(result);
             }
             return resolve(result);

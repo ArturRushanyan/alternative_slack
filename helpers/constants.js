@@ -44,6 +44,8 @@ export const WORKSPACE_OPERATION_PERMISSIONS = {
     DELETE: ['owner', 'admin'],
     ADD_USER: ['owner', 'admin'],
     CREATE_CHANNEL: ['owner', 'admin', 'member'],
+    UPDATE_IMAGE: ['owner', 'admin'],
+    DELETE_IMAGE: ['owner', 'admin'],
 };
 
 export const CHANNEL_OPERATION_PERMISSIONS = {
