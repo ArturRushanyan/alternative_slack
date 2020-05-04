@@ -25,7 +25,6 @@ exports.deleteImage = (imageUrl) => {
         fs.unlink('.' + imageUrl, (err) => {
             if (err) {
                 result = { status: 500, message: err };
-                console.log('in func err =>>>', err);
                 return reject(result);
             }
             return resolve(result);

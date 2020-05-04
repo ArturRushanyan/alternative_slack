@@ -26,6 +26,7 @@ export const COULDNT_DELETE_CHANNEL = 'couldn\'t delete a channel';
 export const COULDNT_ADD_USER_TO_THE_WORKSPACE = 'couldn\'t add a user to the workspace';
 export const COULDNT_ADD_CHANNEL_TO_THE_WORKSPACE = 'couldn\'t add a channel to the workspace';
 export const COULDNT_DELETE_CHANNEL_FROM_WORKSPACE = 'couldn\'t delete a channel from the workspace';
+export const CAN_NOT_CHANGE_YOURSELF_ROLE = 'You\'re can\'t change your role';
 
 export const WORKSPACE_USERS_ROLES = {
     OWNER: 'owner',
@@ -46,6 +47,7 @@ export const WORKSPACE_OPERATION_PERMISSIONS = {
     CREATE_CHANNEL: ['owner', 'admin', 'member'],
     UPDATE_IMAGE: ['owner', 'admin'],
     DELETE_IMAGE: ['owner', 'admin'],
+    UPDATE_USER_ROLE: ['owner', 'admin'],
 };
 
 export const CHANNEL_OPERATION_PERMISSIONS = {

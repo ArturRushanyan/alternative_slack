@@ -25,7 +25,7 @@ export default (operationType) => {
             }
             workspaceData = workspace;
             return util.getUserFromMembers(id, workspace.members);
-        }).then(member =>{
+        }).then(member => {
             if (!member) {
                 throw { status: 400, message: constants.PERMISSION_DENIED }
             }
@@ -34,6 +34,8 @@ export default (operationType) => {
                 throw { status: 400, message: constants.PERMISSION_DENIED };
             }
             req.workspace = workspaceData;
+            req.user.role = member.role;
+
             next();
         }).catch(err => {
             return Error.errorHandler(res, err.status, err.message);

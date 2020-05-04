@@ -7,7 +7,10 @@ import {
     NOT_EXISTS,
     SOMETHING_WENT_WRONG,
     WORKSPACE_DOES_NOT_EXIST,
-    USER_SUCCESSFULLY_ADD, DEFAULT_AVATAR_IMAGE, DEFAULT_WORKSPACE_LOGO,
+    USER_SUCCESSFULLY_ADD,
+    DEFAULT_AVATAR_IMAGE,
+    DEFAULT_WORKSPACE_LOGO,
+    CAN_NOT_CHANGE_YOURSELF_ROLE, PERMISSION_DENIED,
 } from '../../helpers/constants';
 
 // Services
@@ -63,7 +66,6 @@ exports.create = (req, res, next) => {
 
         return res.status(200).json({ success: true , workspace });
     }).catch(err => {
-        console.log('er =>>>>>', err);
         return Error.errorHandler(res, err.status, err.message);
     });
 };
@@ -197,8 +199,38 @@ exports.deleteImage = (req, res, next) => {
 
         return res.status(200).json({ success: true, user: result.userData });
     }).catch(err => {
-        console.log('err in catch =>>>>', err);
         util.deleteImage(req.file.path);
         return Error.errorHandler(res, err.status, err.message || err);
     })
+};
+
+exports.updateUserRole = (req, res, next) => {
+    const { workspaceId } = req.params;
+    let targetUser = req.body.userId;
+    const { user } = req;
+    const { role } = req.body;
+
+    if (targetUser == user._id) {
+        return Error.errorHandler(res, 400, CAN_NOT_CHANGE_YOURSELF_ROLE);
+    }
+    util.getUserFromMembers(targetUser, req.workspace.members).then(member => {
+        if (!member) {
+            throw {status: 404, message: NOT_EXISTS('In workspace current user')};
+        }
+        targetUser = member;
+        if ((user.role === 'admin' && targetUser.role === 'owner') || (user.role !== 'owner' && role === 'owner')) {
+            throw {status: 400, message: PERMISSION_DENIED};
+        }
+
+        return workspaceService.updateUserRoleInWorkspace(workspaceId, targetUser.user._id, role);
+    }).then(result => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return res.status(200).json({ success: true });
+    }).catch(err => {
+        return Error.errorHandler(res, err.status, err.message);
+    });
+
 };

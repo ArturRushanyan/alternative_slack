@@ -12,6 +12,7 @@ exports.getPermissions = (operationType) => {
         case 'createChannel': return constants.WORKSPACE_OPERATION_PERMISSIONS.CREATE_CHANNEL;
         case 'updateImage': return constants.WORKSPACE_OPERATION_PERMISSIONS.UPDATE_IMAGE;
         case 'deleteImage': return constants.WORKSPACE_OPERATION_PERMISSIONS.DELETE_IMAGE;
+        case 'updateUserRole': return constants.WORKSPACE_OPERATION_PERMISSIONS.UPDATE_USER_ROLE;
         default: return [];
     }
 };
@@ -144,5 +145,21 @@ exports.updateWorkspaceLogo = (workspace, path) => {
         return { success: true, workspaceData: result };
     }).catch(err => {
         return { success: false, error: err }
+    });
+};
+
+exports.updateUserRoleInWorkspace = (wid, userId, role) => {
+    return workspaceModel.update({ '_id': wid, 'members.user': userId }, {
+        $set: {
+            'members.$.role': role,
+        }
+    }).then((result) => {
+        if (result.nModified === 0 && result.ok === 0) {
+            return { success: false, error: constants.SOMETHING_WENT_WRONG };
+        }
+
+        return { success: true }
+    }).catch(err => {
+        return { success: false, error: err };
     });
 };

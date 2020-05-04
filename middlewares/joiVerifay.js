@@ -170,7 +170,6 @@ exports.updateUser = (req, res, next) => {
     const result = schema.validate(req.body);
 
     if (result.error) {
-        console.log('result error =>>>>', result.error);
         return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
     }
 
@@ -186,6 +185,22 @@ exports.updateImage = (req, res, next) => {
     if (result.error) {
         return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
     }
+    next();
+};
+
+exports.updateUserRole = (req, res, next) => {
+    const schema = Schema.updateUserRole;
+    const data = {
+        role: req.body.role,
+        workspaceId: req.params.workspaceId,
+        userId: req.body.userId,
+    };
+    const result = schema.validate(data);
+    if (result.error) {
+        return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
+    }
+    req.body.role = result.value.role;
+
     next();
 };
 

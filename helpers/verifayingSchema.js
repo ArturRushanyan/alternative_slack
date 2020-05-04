@@ -1,6 +1,6 @@
 import Joi from '@hapi/joi';
 
-import { DEFAULT_AVATAR_IMAGE } from '../helpers/constants';
+import { WORKSPACE_USERS_ROLES } from '../helpers/constants';
 
 
 module.exports = {
@@ -73,6 +73,12 @@ module.exports = {
 
     updateImage: Joi.object().keys({
         type: Joi.string().valid('user','workspace'),
+    }),
+
+    updateUserRole: Joi.object().keys({
+        workspaceId: Joi.string().required(),
+        role: Joi.string().min(5).max(6).trim().valid(WORKSPACE_USERS_ROLES.ADMIN, WORKSPACE_USERS_ROLES.OWNER, WORKSPACE_USERS_ROLES.MEMBER),
+        userId: Joi.string().required(),
     }),
 };
 
