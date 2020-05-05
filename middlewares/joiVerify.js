@@ -204,4 +204,19 @@ exports.updateUserRole = (req, res, next) => {
     next();
 };
 
+exports.removeUserFromWorkspace = (req, res, next) => {
+    const schema = Schema.removeUserFromWorkspace;
+    const data = {
+        workspaceId: req.params.workspaceId,
+        userId: req.body.userId,
+    };
+
+    const result = schema.validate(data);
+    if (result.error) {
+        return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
+    }
+
+    next();
+};
+
 

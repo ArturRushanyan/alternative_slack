@@ -13,6 +13,7 @@ exports.getPermissions = (operationType) => {
         case 'updateImage': return constants.WORKSPACE_OPERATION_PERMISSIONS.UPDATE_IMAGE;
         case 'deleteImage': return constants.WORKSPACE_OPERATION_PERMISSIONS.DELETE_IMAGE;
         case 'updateUserRole': return constants.WORKSPACE_OPERATION_PERMISSIONS.UPDATE_USER_ROLE;
+        case 'removeUser': return constants.WORKSPACE_OPERATION_PERMISSIONS.REMOVE_USER;
         default: return [];
     }
 };
@@ -101,6 +102,22 @@ exports.addUserInWorkspace = (role, userId, workspaceId) => {
     });
 };
 
+exports.deleteUserFromWorkspace = (workspaceId, userId) => {
+    return workspaceModel.update(
+        { _id: workspaceId },
+        { $pull: { members: { 'user': userId }  } },
+        { new: true }
+    ).then((result) => {
+        if (result.nModified === 0 && result.ok === 0) {
+            return { success: false, error: constants.SOMETHING_WENT_WRONG };
+        }
+
+        return { success: true }
+    }).catch(err => {
+        return { success: false, error: err };
+    });
+};
+
 exports.addChannelInWorkspace = (workspaceId, channelId) => {
     return workspaceModel.update({ _id: workspaceId }, {
         $push: {
@@ -149,11 +166,10 @@ exports.updateWorkspaceLogo = (workspace, path) => {
 };
 
 exports.updateUserRoleInWorkspace = (wid, userId, role) => {
-    return workspaceModel.update({ '_id': wid, 'members.user': userId }, {
-        $set: {
-            'members.$.role': role,
-        }
-    }).then((result) => {
+    return workspaceModel.update(
+        { '_id': wid, 'members.user': userId },
+        { $set: { 'members.$.role': role } }
+    ).then((result) => {
         if (result.nModified === 0 && result.ok === 0) {
             return { success: false, error: constants.SOMETHING_WENT_WRONG };
         }

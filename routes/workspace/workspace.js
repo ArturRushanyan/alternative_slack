@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 
 // middleware
-import * as validateWithJoi from '../../middlewares/joiVerifay';
+import * as validateWithJoi from '../../middlewares/joiVerify';
 import checkCredentials from '../../middlewares/checkCredentials/workspace';
 import uploadImage from '../../middlewares/uploadImage';
 
@@ -17,9 +17,9 @@ router.delete('/:workspaceId', passport.authenticate('jwt', { session: false }),
 
 router.post('/:workspaceId/image', passport.authenticate('jwt', { session: false }), validateWithJoi.updateImage, checkCredentials('updateImage'), uploadImage.single('image'), workspace.updateImage);
 router.delete('/:workspaceId/image', passport.authenticate('jwt', { session: false }), checkCredentials('deleteImage'), workspace.deleteImage);
-
 router.post('/:workspaceId/add-user', passport.authenticate('jwt', { session: false }), validateWithJoi.addUserToWorkspace, checkCredentials('addUser'), workspace.addUser);
 router.patch('/:workspaceId/update-user-role', passport.authenticate('jwt', { session: false }), validateWithJoi.updateUserRole, checkCredentials('updateUserRole'), workspace.updateUserRole);
+router.delete('/:workspaceId/remove-user', passport.authenticate('jwt', { session: false }), validateWithJoi.removeUserFromWorkspace, checkCredentials('removeUser'), workspace.removeUser); //
 
 
 export default router;

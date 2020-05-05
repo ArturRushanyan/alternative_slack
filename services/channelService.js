@@ -81,3 +81,22 @@ exports.addUserInChannel = (query, userId) => {
         return { success: false, error: err };
     });
 };
+
+exports.deleteUserFromChannel = () => {
+
+};
+
+exports.deleteUserFromWorkspaceAllChannels = (workspaceId, userId) => {
+    return channelModel.updateMany({ workspaceId },
+        { $pull: { members: { 'user': userId } } },
+        { multi: true }
+    ).then((result) => {
+        if (result.nModified === 0) {
+            return { success: false, error: constants.COULDNT_DELETE_WORKSPACE };
+        }
+
+        return { success: true }
+    }).catch(err => {
+        return { success: false, error: err };
+    });
+};

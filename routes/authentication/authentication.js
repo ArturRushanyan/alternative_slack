@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 import * as authentiaction from './authentication.controller';
-import * as validateWithJoi from '../../middlewares/joiVerifay';
+import * as validateWithJoi from '../../middlewares/joiVerify';
 
 const router = express.Router();
 

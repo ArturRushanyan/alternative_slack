@@ -31,7 +31,6 @@ exports.addUserWorkspace = (user, workspaceId) => {
 
 
 exports.deleteUserWorkspace = (workspace) => {
-
     return userWorkspaceModel.update({},
         { $pull: { workspaces: { $in: workspace._id  } } },
         { multi: true },
@@ -44,4 +43,21 @@ exports.deleteUserWorkspace = (workspace) => {
     }).catch(err => {
         return { success: false, error: err };
     });
+};
+
+exports.removeWorkspaceFromUserWorkspaceList = (userId, workspaceId) => {
+      return userWorkspaceModel.update({ userId },
+          { $pull: { workspaces: workspaceId } },
+          { new: true }
+      ).then((result) => {
+          if (result.nModified === 0) {
+              return { success: false, error: constants.COULDNT_DELETE_WORKSPACE };
+          }
+
+          return { success: true }
+      }).catch(err => {
+          return { success: false, error: err };
+      });
+
+
 };

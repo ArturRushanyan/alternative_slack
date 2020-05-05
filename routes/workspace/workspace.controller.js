@@ -10,7 +10,9 @@ import {
     USER_SUCCESSFULLY_ADD,
     DEFAULT_AVATAR_IMAGE,
     DEFAULT_WORKSPACE_LOGO,
-    CAN_NOT_CHANGE_YOURSELF_ROLE, PERMISSION_DENIED,
+    CAN_NOT_CHANGE_YOURSELF_ROLE,
+    PERMISSION_DENIED,
+    CANNOT_DELETE_YOURSELF_FROM_WORKSPACE,
 } from '../../helpers/constants';
 
 // Services
@@ -233,4 +235,45 @@ exports.updateUserRole = (req, res, next) => {
         return Error.errorHandler(res, err.status, err.message);
     });
 
+};
+
+exports.removeUser = (req, res, next) => {
+    const { workspaceId } = req.params;
+    let targetUser = req.body.userId;
+    const { user } = req;
+
+    if (targetUser == user._id) {
+        return Error.errorHandler(res, 400, CANNOT_DELETE_YOURSELF_FROM_WORKSPACE);
+    }
+    util.getUserFromMembers(targetUser, req.workspace.members).then((member) => {
+        if (!member) {
+            throw {status: 404, message: NOT_EXISTS('In workspace current user')};
+        }
+        targetUser = member;
+
+        if (user.role === 'admin' && targetUser.role === 'owner') {
+            throw {status: 400, message: PERMISSION_DENIED};
+        }
+        return userWorkspaceService.removeWorkspaceFromUserWorkspaceList(targetUser.user._id, workspaceId);
+    }).then(result => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return channelService.deleteUserFromWorkspaceAllChannels(workspaceId, targetUser.user._id);
+    }).then((result) => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return workspaceService.deleteUserFromWorkspace(workspaceId, targetUser.user._id);
+    }).then((result) => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return res.status(200).json({ success: true, message: 'user successfully deleted' });
+    }).catch(err => {
+       return Error.errorHandler(res, err.status, err.message);
+    });
 };

@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 
 import * as user from './user.controller';
-import * as validateWithJoi from "../../middlewares/joiVerifay";
+import * as validateWithJoi from "../../middlewares/joiVerify";
 import uploadImage from '../../middlewares/uploadImage';
 
 const router = express.Router();

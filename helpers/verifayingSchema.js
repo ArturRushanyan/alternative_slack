@@ -80,5 +80,10 @@ module.exports = {
         role: Joi.string().min(5).max(6).trim().valid(WORKSPACE_USERS_ROLES.ADMIN, WORKSPACE_USERS_ROLES.OWNER, WORKSPACE_USERS_ROLES.MEMBER),
         userId: Joi.string().required(),
     }),
+
+    removeUserFromWorkspace: Joi.object().keys({
+        workspaceId: Joi.string().required(),
+        userId: Joi.string().required(),
+    }),
 };
 

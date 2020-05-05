@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 
 import * as channel from './channel.controller';
-import * as validateWithJoi from '../../middlewares/joiVerifay';
+import * as validateWithJoi from '../../middlewares/joiVerify';
 import workspaceCredentials from '../../middlewares/checkCredentials/workspace';
 import checkCredentials from '../../middlewares/checkCredentials/channel';
 
