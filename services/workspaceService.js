@@ -1,7 +1,43 @@
 import workspaceModel from '../models/Workspace';
 import channelModel from '../models/Channel';
 import * as constants from '../helpers/constants';
-import { DEFAULT_WORKSPACE_LOGO } from "../helpers/constants";
+import { DEFAULT_WORKSPACE_LOGO, OWNER_CAN_NOT_LEAVE_FROM_WORKSPACE, SOMETHING_WENT_WRONG } from "../helpers/constants";
+
+function getWorkspaceOwners(wid) {
+    const owners = [];
+    return workspaceModel.findOne({ _id: wid }).then((result) => {
+        result.members.forEach(member => {
+            if (member.role === 'owner') {
+                owners.push(member);
+            }
+        });
+
+        return { success: true, owners };
+    }).catch(err => {
+        return { success: false, error: err };
+    });
+};
+
+function updateWorkspaceOwner(wid, user, owners) {
+    let newOwner;
+    owners.forEach(item => {
+        if (user._id !== item.user) {
+            return newOwner = item.user;
+        }
+    });
+
+    return workspaceModel.update({ _id: wid },
+        { $set: { owner: newOwner }
+    }).then(result => {
+        if (result.nModified === 0 && result.ok === 0) {
+            return { success: false, error: constants.SOMETHING_WENT_WRONG };
+        }
+
+        return { success: true };
+    }).catch(err => {
+        return { success: false, error: err };
+    })
+}
 
 exports.getPermissions = (operationType) => {
     switch (operationType) {
@@ -14,6 +50,7 @@ exports.getPermissions = (operationType) => {
         case 'deleteImage': return constants.WORKSPACE_OPERATION_PERMISSIONS.DELETE_IMAGE;
         case 'updateUserRole': return constants.WORKSPACE_OPERATION_PERMISSIONS.UPDATE_USER_ROLE;
         case 'removeUser': return constants.WORKSPACE_OPERATION_PERMISSIONS.REMOVE_USER;
+        case 'leave': return constants.WORKSPACE_OPERATION_PERMISSIONS.LEAVE_WORKSPACE;
         default: return [];
     }
 };
@@ -178,4 +215,30 @@ exports.updateUserRoleInWorkspace = (wid, userId, role) => {
     }).catch(err => {
         return { success: false, error: err };
     });
+};
+
+exports.ownerLeaving = (workspace, user) => {
+    let workspaceId = workspace._id;
+
+    return getWorkspaceOwners(workspaceId).then(result => {
+        if (!result.success) {
+            return { success: false, status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        if (result.owners.length === 1) {
+           return { success: false, status: 400, error: OWNER_CAN_NOT_LEAVE_FROM_WORKSPACE };
+        }
+
+        if (workspace.owner === user._id) {
+            return updateWorkspaceOwner(workspaceId, user, result.owners);
+        } else {
+            return { success: true };
+        }
+    }).then(result => {
+        if (!result.success) return result;
+
+        return { success: true };
+    }).catch(err => {
+        return { success: false, error: err };
+    })
 };

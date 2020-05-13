@@ -85,5 +85,9 @@ module.exports = {
         workspaceId: Joi.string().required(),
         userId: Joi.string().required(),
     }),
+
+    leaveFromWorkspace: Joi.object().keys({
+        workspaceId: Joi.string().required(),
+    }),
 };
 

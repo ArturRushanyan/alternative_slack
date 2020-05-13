@@ -28,6 +28,8 @@ export const COULDNT_ADD_CHANNEL_TO_THE_WORKSPACE = 'couldn\'t add a channel to 
 export const COULDNT_DELETE_CHANNEL_FROM_WORKSPACE = 'couldn\'t delete a channel from the workspace';
 export const CAN_NOT_CHANGE_YOURSELF_ROLE = 'You\'re can\'t change your role';
 export const CANNOT_DELETE_YOURSELF_FROM_WORKSPACE = 'You are can\'t remove yourself from workspace';
+export const OWNER_CAN_NOT_LEAVE_FROM_WORKSPACE = 'You are can\'t leave from the workspace, because there are no more owners';
+export const SUCCESS_LEAVE_WORKSPACE = 'You successfully leave the workspace';
 
 export const WORKSPACE_USERS_ROLES = {
     OWNER: 'owner',
@@ -50,6 +52,7 @@ export const WORKSPACE_OPERATION_PERMISSIONS = {
     DELETE_IMAGE: ['owner', 'admin'],
     UPDATE_USER_ROLE: ['owner', 'admin'],
     REMOVE_USER: ['owner', 'admin'],
+    LEAVE_WORKSPACE: ['owner', 'admin', 'member'],
 };
 
 export const CHANNEL_OPERATION_PERMISSIONS = {

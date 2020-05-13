@@ -8,11 +8,11 @@ import {
     SOMETHING_WENT_WRONG,
     WORKSPACE_DOES_NOT_EXIST,
     USER_SUCCESSFULLY_ADD,
-    DEFAULT_AVATAR_IMAGE,
     DEFAULT_WORKSPACE_LOGO,
     CAN_NOT_CHANGE_YOURSELF_ROLE,
     PERMISSION_DENIED,
     CANNOT_DELETE_YOURSELF_FROM_WORKSPACE,
+    SUCCESS_LEAVE_WORKSPACE,
 } from '../../helpers/constants';
 
 // Services
@@ -20,8 +20,6 @@ import * as userService from '../../services/userService';
 import * as workspaceService from '../../services/workspaceService';
 import * as channelService from '../../services/channelService';
 import * as userWorkspaceService from '../../services/userWorkspaceService';
-
-
 
 exports.create = (req, res, next) => {
     const { user } = req;
@@ -217,7 +215,7 @@ exports.updateUserRole = (req, res, next) => {
     }
     util.getUserFromMembers(targetUser, req.workspace.members).then(member => {
         if (!member) {
-            throw {status: 404, message: NOT_EXISTS('In workspace current user')};
+            throw { status: 404, message: NOT_EXISTS('In workspace current user') };
         }
         targetUser = member;
         if ((user.role === 'admin' && targetUser.role === 'owner') || (user.role !== 'owner' && role === 'owner')) {
@@ -247,12 +245,12 @@ exports.removeUser = (req, res, next) => {
     }
     util.getUserFromMembers(targetUser, req.workspace.members).then((member) => {
         if (!member) {
-            throw {status: 404, message: NOT_EXISTS('In workspace current user')};
+            throw { status: 404, message: NOT_EXISTS('In workspace current user') };
         }
         targetUser = member;
 
         if (user.role === 'admin' && targetUser.role === 'owner') {
-            throw {status: 400, message: PERMISSION_DENIED};
+            throw { status: 400, message: PERMISSION_DENIED };
         }
         return userWorkspaceService.removeWorkspaceFromUserWorkspaceList(targetUser.user._id, workspaceId);
     }).then(result => {
@@ -275,5 +273,46 @@ exports.removeUser = (req, res, next) => {
         return res.status(200).json({ success: true, message: 'user successfully deleted' });
     }).catch(err => {
        return Error.errorHandler(res, err.status, err.message);
+    });
+};
+
+exports.leaveWorkspace = (req, res, next) => {
+    const { workspaceId } = req.params;
+    const { user } = req;
+    util.getUserFromMembers(user._id, req.workspace.members).then(result => {
+        if (!result) {
+            throw {status: 400, message: NOT_EXISTS('In workspace current user')};
+        }
+        if (user.role === 'owner') {
+            return workspaceService.ownerLeaving(req.workspace, user);
+        } else {
+            return { success: true };
+        }
+    }).then(result => {
+        if (!result.success) {
+            throw { status: result.status, message: result.error }
+        }
+
+        return userWorkspaceService.removeWorkspaceFromUserWorkspaceList(user._id, workspaceId);
+    }).then(result => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return channelService.deleteUserFromWorkspaceAllChannels(workspaceId, user._id);
+    }).then((result) => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return workspaceService.deleteUserFromWorkspace(workspaceId, user._id);
+    }).then((result) => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return res.status(200).json({ success: true, message: SUCCESS_LEAVE_WORKSPACE });
+    }).catch(err => {
+        return Error.errorHandler(res, err.status, err.message);
     });
 };

@@ -219,4 +219,15 @@ exports.removeUserFromWorkspace = (req, res, next) => {
     next();
 };
 
+exports.leaveFromWorkspace = (req, res, next) => {
+    const schema = Schema.leaveFromWorkspace;
+
+    const result = schema.validate(req.params);
+    if (result.error) {
+        return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
+    }
+
+    next();
+};
+
 

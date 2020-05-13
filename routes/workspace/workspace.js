@@ -19,7 +19,8 @@ router.post('/:workspaceId/image', passport.authenticate('jwt', { session: false
 router.delete('/:workspaceId/image', passport.authenticate('jwt', { session: false }), checkCredentials('deleteImage'), workspace.deleteImage);
 router.post('/:workspaceId/add-user', passport.authenticate('jwt', { session: false }), validateWithJoi.addUserToWorkspace, checkCredentials('addUser'), workspace.addUser);
 router.patch('/:workspaceId/update-user-role', passport.authenticate('jwt', { session: false }), validateWithJoi.updateUserRole, checkCredentials('updateUserRole'), workspace.updateUserRole);
-router.delete('/:workspaceId/remove-user', passport.authenticate('jwt', { session: false }), validateWithJoi.removeUserFromWorkspace, checkCredentials('removeUser'), workspace.removeUser); //
+router.delete('/:workspaceId/remove-user', passport.authenticate('jwt', { session: false }), validateWithJoi.removeUserFromWorkspace, checkCredentials('removeUser'), workspace.removeUser);
+router.delete('/:workspaceId/leave', passport.authenticate('jwt', { session: false }), validateWithJoi.leaveFromWorkspace, checkCredentials('leave'), workspace.leaveWorkspace);
 
 
 export default router;
