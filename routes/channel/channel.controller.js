@@ -7,6 +7,8 @@ import {
     NOT_EXISTS,
     WORKSPACE_DOES_NOT_EXIST,
     USER_SUCCESSFULLY_ADD,
+    SUCCESS_DELETED_USER_FROM_CHANNEL,
+    OWNER_CAN_NOT_LEAVE_FROM_CHANNEL,
 } from '../../helpers/constants';
 
 import * as channelService from '../../services/channelService';
@@ -135,6 +137,51 @@ exports.addUser = (req, res, next) => {
         return res.status(200).json({ success: true, message: USER_SUCCESSFULLY_ADD });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
-    })
+    });
+};
 
+exports.removeUser = (req, res, next) => {
+    const { channelId } = req.params;
+    const targetUser = req.body.userId;
+
+    util.getUserFromMembers(targetUser, req.channel.members).then(result => {
+        if (!result) {
+            throw { status: 409, message: NOT_EXISTS('User in the channel') };
+        }
+
+        return channelService.deleteUserFromChannel({ _id: channelId }, req.user._id);
+    }).then(result => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return res.status(200).json({ success: true, message: SUCCESS_DELETED_USER_FROM_CHANNEL });
+    }).catch(err => {
+        return Error.errorHandler(res, err.status, err.message);
+    })
+};
+
+exports.leaveChannel = (req, res, next) => {
+    const { channelId } = req.params;
+    const { user, channel } = req;
+
+    util.getUserFromMembers(user._id, req.channel.members).then(result => {
+        if (!result) {
+            throw { status: 400, message: PERMISSION_DENIED };
+        }
+
+        if (channel.owner.toString() === user._id.toString()) {
+            throw { status: 400, message: OWNER_CAN_NOT_LEAVE_FROM_CHANNEL };
+        }
+
+        return channelService.deleteUserFromChannel({ _id: channelId }, user._id);
+    }).then(result => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return res.status(200).json({ success: true });
+    }).catch(err => {
+        return Error.errorHandler(res, err.status, err.message);
+    });
 };

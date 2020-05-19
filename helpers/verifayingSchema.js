@@ -94,5 +94,16 @@ module.exports = {
         channelId: Joi.string().required(),
         userId: Joi.string().required(),
     }),
+
+    removeUserFromChannel: Joi.object().keys({
+        channelId: Joi.string().required(),
+        userId: Joi.string().required(),
+    }),
+
+    leaveFromChannel: Joi.object().keys({
+        channelId: Joi.string().required(),
+    }),
+
+
 };
 

@@ -8,6 +8,8 @@ exports.getPermissions = (operationType) => {
         case 'update' : return constants.CHANNEL_OPERATION_PERMISSIONS.UPDATE;
         case 'delete' : return constants.CHANNEL_OPERATION_PERMISSIONS.DELETE;
         case 'addUser': return constants.CHANNEL_OPERATION_PERMISSIONS.ADD_USER;
+        case 'removeUser': return constants.CHANNEL_OPERATION_PERMISSIONS.REMOVE_USER;
+        case 'leave': return constants.CHANNEL_OPERATION_PERMISSIONS.LEAVE;
         default: return [];
     }
 };
@@ -83,8 +85,19 @@ exports.addUserInChannel = (query, userId) => {
     });
 };
 
-exports.deleteUserFromChannel = () => {
+exports.deleteUserFromChannel = (query, userId) => {
+    return channelModel.update(query,
+        { $pull: { members: { 'user': userId } } },
+        { new: true }
+    ).then(result => {
+        if (result.nModified === 0 && result.ok === 0) {
+            return { success: false, error: constants.SOMETHING_WENT_WRONG };
+        }
 
+        return { success: true };
+    }).catch(err => {
+        return { success: false, error: err };
+    })
 };
 
 exports.deleteUserFromWorkspaceAllChannels = (workspaceId, userId) => {
