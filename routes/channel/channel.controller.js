@@ -1,12 +1,17 @@
 import Error from '../../helpers/Error';
 import {
     ALREADY_EXISTS,
-    CHANNEL_USERS_ROLES, PERMISSION_DENIED,
+    CHANNEL_USERS_ROLES,
+    PERMISSION_DENIED,
     SOMETHING_WENT_WRONG,
+    NOT_EXISTS,
+    WORKSPACE_DOES_NOT_EXIST,
+    USER_SUCCESSFULLY_ADD,
 } from '../../helpers/constants';
 
 import * as channelService from '../../services/channelService';
 import * as workspaceService from '../../services/workspaceService';
+import * as util from '../../helpers/utils';
 
 
 exports.create = (req, res, next) => {
@@ -96,4 +101,40 @@ exports.delete = (req, res, next) => {
     }).catch(err => {
        return Error.errorHandler(res, err.status, err.message);
     });
+};
+
+exports.addUser = (req, res, next) => {
+    const { channelId } = req.params;
+    const targetUser = req.body.userId;
+    const { workspaceId } = req.channel;
+
+    return workspaceService.findWorkspace({ _id: workspaceId }).then(result => {
+        if (!result.success) {
+            throw { status: 404, message: WORKSPACE_DOES_NOT_EXIST(workspaceId) }
+        }
+
+        return util.getUserFromMembers(targetUser, result.workspace.members);
+    }).then(result => {
+        if (!result) {
+            throw { status: 400, message: NOT_EXISTS('User in workspace') }
+        }
+
+        return util.getUserFromMembers(targetUser, req.channel.members);
+    }).then(result => {
+        if (!!result) {
+            throw { status: 409, message: ALREADY_EXISTS('User in the channel') };
+        }
+
+        return channelService.addUserInChannel({ _id: channelId }, targetUser);
+    }).then(result => {
+        console.log('result =>>>', result);
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return res.status(200).json({ success: true, message: USER_SUCCESSFULLY_ADD });
+    }).catch(err => {
+        return Error.errorHandler(res, err.status, err.message);
+    })
+
 };

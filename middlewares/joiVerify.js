@@ -230,4 +230,19 @@ exports.leaveFromWorkspace = (req, res, next) => {
     next();
 };
 
+exports.addUserToChannel= (req, res, next) => {
+    const schema = Schema.addUserToChannel;
+    const data = {
+        channelId: req.params.channelId,
+        userId: req.body.userId
+    };
+
+    const result = schema.validate(data);
+    if (result.error) {
+        return Error.errorHandler(res, 422, constants.VALIDATION_ERROR);
+    }
+
+    next();
+};
+
 

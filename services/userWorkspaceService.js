@@ -58,6 +58,4 @@ exports.removeWorkspaceFromUserWorkspaceList = (userId, workspaceId) => {
       }).catch(err => {
           return { success: false, error: err };
       });
-
-
 };

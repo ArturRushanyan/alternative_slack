@@ -89,5 +89,10 @@ module.exports = {
     leaveFromWorkspace: Joi.object().keys({
         workspaceId: Joi.string().required(),
     }),
+
+    addUserToChannel: Joi.object().keys({
+        channelId: Joi.string().required(),
+        userId: Joi.string().required(),
+    }),
 };
 

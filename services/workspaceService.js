@@ -1,7 +1,13 @@
 import workspaceModel from '../models/Workspace';
 import channelModel from '../models/Channel';
 import * as constants from '../helpers/constants';
-import { DEFAULT_WORKSPACE_LOGO, OWNER_CAN_NOT_LEAVE_FROM_WORKSPACE, SOMETHING_WENT_WRONG } from "../helpers/constants";
+import {
+    DEFAULT_WORKSPACE_LOGO,
+    OWNER_CAN_NOT_LEAVE_FROM_WORKSPACE,
+    SOMETHING_WENT_WRONG,
+    WORKSPACE_DOES_NOT_EXIST,
+} from "../helpers/constants";
+import {} from "../helpers/constants";
 
 function getWorkspaceOwners(wid) {
     const owners = [];
@@ -61,7 +67,7 @@ exports.findWorkspace = (query) => {
            return { success: false };
        }
 
-       return { success: true };
+       return { success: true, workspace };
     }).catch(err => {
         return { success: false, error: err };
     });

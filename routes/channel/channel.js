@@ -13,5 +13,11 @@ router.post('/', passport.authenticate('jwt', { session: false }), validateWithJ
 router.get('/:channelId', passport.authenticate('jwt', { session: false }), validateWithJoi.getChannel, checkCredentials('get'), channel.get);
 router.patch('/:channelId', passport.authenticate('jwt', { session: false }), validateWithJoi.updateChannel, checkCredentials('update'), channel.update);
 router.delete('/:channelId', passport.authenticate('jwt', { session: false }), validateWithJoi.deleteChannel, checkCredentials('delete'), channel.delete);
+// TODO get all channels in current workspace where user is exists
+
+router.post('/:channelId/add-user', passport.authenticate('jwt', { session: false }), validateWithJoi.addUserToChannel, checkCredentials('addUser'), channel.addUser);
+
+// remove member from channel
+// leave member from channel
 
 export default router;

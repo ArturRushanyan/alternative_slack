@@ -7,10 +7,11 @@ exports.getPermissions = (operationType) => {
         case 'get' : return constants.CHANNEL_OPERATION_PERMISSIONS.GET;
         case 'update' : return constants.CHANNEL_OPERATION_PERMISSIONS.UPDATE;
         case 'delete' : return constants.CHANNEL_OPERATION_PERMISSIONS.DELETE;
-        // case 'addUser': return constants.WORKSPACE_OPERATION_PERMISSIONS.ADD_USER;
+        case 'addUser': return constants.CHANNEL_OPERATION_PERMISSIONS.ADD_USER;
         default: return [];
     }
 };
+
 exports.createChannel = (params) => {
 
     let channel = new channelModel({
@@ -29,7 +30,7 @@ exports.findChannel = (query) => {
         if (!channel) {
             return { success: false };
         }
-        return { success: true };
+        return { success: true, channel };
     }).catch(err => {
         return { success: false, error: err };
     });
