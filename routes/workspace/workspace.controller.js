@@ -39,6 +39,7 @@ exports.create = (req, res, next) => {
             role: CHANNEL_USERS_ROLES.OWNER,
             isDefault: true
         };
+
         return channelService.createChannel(params);
     }).then((createdChannel) => {
         if (!createdChannel) {
@@ -58,13 +59,14 @@ exports.create = (req, res, next) => {
         if (!result.success) {
             throw {status: 500, message: result.error};
         }
+
         return channelService.updateChannel({ _id: channel._id }, { workspaceId: workspace._id });
     }).then((result) => {
         if (!result.success) {
             throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
         }
 
-        return res.status(200).json({ success: true , workspace });
+        return res.status(200).json({ success: true, workspace });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
     });
@@ -92,14 +94,13 @@ exports.update = (req, res, next) => {
         name,
     };
 
-    workspaceService.getWorkspace({ _id: workspaceId }).then((result) => {
+    workspaceService.getWorkspace({ _id: workspaceId }).then(result => {
         if (!result) {
             throw {status: 404, message: WORKSPACE_DOES_NOT_EXIST(workspaceId)}
         }
 
         return workspaceService.updateWorkspace({_id: workspaceId}, attributes);
     }).then((updatedWorkspace) => {
-
         if (!updatedWorkspace.success || updatedWorkspace.err) {
             throw { status: 500, message: updatedWorkspace.error || SOMETHING_WENT_WRONG };
         }

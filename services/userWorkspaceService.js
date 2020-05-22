@@ -30,7 +30,7 @@ exports.addUserWorkspace = (user, workspaceId) => {
 };
 
 
-exports.deleteUserWorkspace = (workspace) => {
+exports.deleteUserWorkspace = (workspace) => {  // TODO change function name => function delete workspace from all member user's workspace list
     return userWorkspaceModel.update({},
         { $pull: { workspaces: { $in: workspace._id  } } },
         { multi: true },

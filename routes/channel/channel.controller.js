@@ -27,7 +27,8 @@ exports.create = (req, res, next) => {
         } else if (!channel.success && channel.error) {
             throw { status: 500, message: channel.error};
         }
-        let params = {
+
+        const params = {
             name,
             user,
             role: CHANNEL_USERS_ROLES.OWNER,
@@ -95,7 +96,7 @@ exports.delete = (req, res, next) => {
 
         return workspaceService.deleteChannelFromWorkspace(workspaceId, channelId);
     }).then((result) => {
-        if (!result.success || result.error) {
+        if (!result.success) {
             throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
         }
 
@@ -115,12 +116,14 @@ exports.addUser = (req, res, next) => {
             throw { status: 404, message: WORKSPACE_DOES_NOT_EXIST(workspaceId) }
         }
 
+        // check the user is member of the current workspace
         return util.getUserFromMembers(targetUser, result.workspace.members);
     }).then(result => {
         if (!result) {
             throw { status: 400, message: NOT_EXISTS('User in workspace') }
         }
 
+        // check the user is member of the current channel
         return util.getUserFromMembers(targetUser, req.channel.members);
     }).then(result => {
         if (!!result) {
@@ -129,7 +132,6 @@ exports.addUser = (req, res, next) => {
 
         return channelService.addUserInChannel({ _id: channelId }, targetUser);
     }).then(result => {
-        console.log('result =>>>', result);
         if (!result.success) {
             throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
         }
@@ -144,6 +146,7 @@ exports.removeUser = (req, res, next) => {
     const { channelId } = req.params;
     const targetUser = req.body.userId;
 
+    // check the user is member of the current channel
     util.getUserFromMembers(targetUser, req.channel.members).then(result => {
         if (!result) {
             throw { status: 409, message: NOT_EXISTS('User in the channel') };
@@ -165,12 +168,13 @@ exports.leaveChannel = (req, res, next) => {
     const { channelId } = req.params;
     const { user, channel } = req;
 
+    // check the user is member of the current channel
     util.getUserFromMembers(user._id, req.channel.members).then(result => {
         if (!result) {
             throw { status: 400, message: PERMISSION_DENIED };
         }
 
-        if (channel.owner.toString() === user._id.toString()) {
+        if (channel.owner == user._id) {
             throw { status: 400, message: OWNER_CAN_NOT_LEAVE_FROM_CHANNEL };
         }
 

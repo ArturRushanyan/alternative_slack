@@ -7,6 +7,7 @@ export const DEFAULT_WORKSPACE_LOGO = '/images/defaultLogos/workspacesDefault.pn
 
 export const JWT_SECRET_KEY = 'supersecret';
 
+
 // MESSAGES
 export const MISSING_USER_ID = 'Missing user\'s id';
 export const WORKSPACE_DOES_NOT_EXIST = id => `workspace with id ${id} doesn't exists`;

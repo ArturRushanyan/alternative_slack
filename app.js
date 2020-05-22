@@ -2,7 +2,6 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import logger from 'morgan';
-import path from 'path';
 import passport from 'passport';
 
 import router from './routes';

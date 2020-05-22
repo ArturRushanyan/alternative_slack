@@ -1,7 +1,6 @@
 import JWT from 'jsonwebtoken';
 import moment from 'moment';
 import { uid } from 'rand-token';
-import Error from '../helpers/Error';
 import config from '../config';
 import * as constants from '../helpers/constants';
 

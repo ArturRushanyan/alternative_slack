@@ -25,7 +25,7 @@ exports.SignUp = (req, res, next) => {
             throw { status: 409, message: constants.ALREADY_EXISTS('User') };
         }
 
-        return hash.hasingPassword(req.body.password);
+        return hash.hashingPassword(req.body.password);
     }).then(hashedPassword => {
         let newUser = {
             email: req.body.email,
@@ -36,22 +36,15 @@ exports.SignUp = (req, res, next) => {
         return userService.createUser(newUser);
     }).then((user) => {
         if (!user) {
-            throw {status: 500, message: constants.SOMETHING_WENT_WRONG};
+            throw { status: 500, message: constants.SOMETHING_WENT_WRONG };
         }
         createdUser = user;
 
         return userWorkspaceService.createUserWorkspace(user._id);
-    }).then((result) => {
-        if (!result) {
-            throw {status: 500, message: SOMETHING_WENT_WRONG};
-        }
-
-        return userWorkspaceService.getUserWorkspaces(createdUser._id);
     }).then((userWorkspaces) => {
         if (!userWorkspaces) {
             throw { status: 500, message: SOMETHING_WENT_WRONG };
         }
-
         workspaces = userWorkspaces;
 
         return Token.generateAuthToken(createdUser._id);
@@ -62,6 +55,7 @@ exports.SignUp = (req, res, next) => {
            user: createdUser,
            workspaces,
        });
+
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
     })
@@ -85,6 +79,7 @@ exports.Login = (req, res, next) => {
 
         return Token.generateAuthToken(user._id)
     }).then(token => {
+
         authToken = token;
         let attributes = {
             isLoggedIn: true,
@@ -94,9 +89,8 @@ exports.Login = (req, res, next) => {
         return userService.findUserAndUpdate({ _id: user._id }, attributes);
     }).then(updatedUser => {
         if (!updatedUser.success) {
-            throw {status: 500, message: constants.SOMETHING_WENT_WRONG};
+            throw { status: 500, message: constants.SOMETHING_WENT_WRONG };
         }
-
         user = updatedUser;
 
         return userWorkspaceService.getUserWorkspaces(user.userData._id);
@@ -117,14 +111,18 @@ exports.Login = (req, res, next) => {
 };
 
 exports.Logout = (req, res, next) => {
-    const user = req.user;
-    let attributes = {
+    const { user } = req;
+    const attributes = {
         isLoggedIn: false,
     };
 
     return userService.findUserAndUpdate({ _id: user._id }, attributes)
-    .then(() => {
-        res.status(200).json({ success: true });
+    .then(result => {
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
+        }
+
+        return res.status(200).json({ success: true });
     }).catch(err => {
         return Error.errorHandler(res, 500, err);
     });
@@ -143,7 +141,6 @@ exports.resetPassword = (req, res, next) => {
         user = result;
 
         return Token.generateResetPasswordToken();
-
     }).then((tokenInfo) => {
         return tokenService.addTemporaryToken(user, tokenInfo, constants.PASSWORD_RESET_REASON);
     }).then((result) => {
@@ -182,17 +179,18 @@ exports.resetPasswordConfirmation = (req, res, next) => {
 
     tokenService.getByTokenAndReason(token, constants.PASSWORD_RESET_REASON).then(token => {
         if (!token.token || !token.user) {
-            throw { status: 400, message: constants.INVALID_TOKEN }
-        }
-
-        if (moment(token.expiration, "YYYY-MM-DD HH:mm:ss").isBefore(moment().format("YYYY-MM-DD HH:mm:ss"))) {
-            throw { status: 409, message: constants.EXPIRED_TOKEN }
+            throw {status: 400, message: constants.INVALID_TOKEN}
         }
         tokenData = token;
 
-        return hash.hasingPassword(password);
-    }).then((newPassword) => {
+        return tokenService.isTokenExpired(token);
+    }).then((result) => {
+        if (result) {
+            throw { status: 409, message: constants.EXPIRED_TOKEN };
+        }
 
+        return hash.hashingPassword(password);
+    }).then((newPassword) => {
         return userService.findUserAndUpdate({ email: tokenData.user.email }, { password: newPassword });
     }).then((result) => {
         if (!result.success) {

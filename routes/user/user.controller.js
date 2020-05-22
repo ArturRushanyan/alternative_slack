@@ -33,10 +33,7 @@ exports.update = (req, res, next) => {
 };
 
 exports.uploadImage = (req, res, next) => {
-    utils.deleteImage(req.user.imageUrl).then((result) => {
-        if (!result.success) {
-            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
-        }
+    utils.deleteImage(req.user.imageUrl).then(() => {
         return userService.updateUserAvatar(req.user, req.file.path);
     }).then((result) => {
         if (!result.success) {
@@ -51,10 +48,7 @@ exports.uploadImage = (req, res, next) => {
 };
 
 exports.deleteImage = (req, res, next) => {
-    utils.deleteImage(req.user.imageUrl).then((result) => {
-        if (!result.success) {
-            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
-        }
+    utils.deleteImage(req.user.imageUrl).then(() => {
         return userService.updateUserAvatar(req.user, DEFAULT_AVATAR_IMAGE);
     }).then((result) => {
         if (!result.success) {

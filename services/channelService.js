@@ -54,8 +54,8 @@ exports.updateChannel = (query, attributes) => {
     });
 };
 
-exports.deleteChannel = (cid, workspaceId) => {
-    return channelModel.deleteOne({_id: cid, workspaceId}).then((result) => {
+exports.deleteChannel = (channelId, workspaceId) => {
+    return channelModel.deleteOne({_id: channelId, workspaceId}).then((result) => {
         if (result.deletedCount === 0) {
             return { success: false, error: constants.COULDNT_DELETE_CHANNEL };
         }
