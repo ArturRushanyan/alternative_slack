@@ -1,0 +1,1265 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "virtualOffice",
+    "contact": {}
+  },
+  "host": "localhost:3000",
+  "basePath": "/api/v1",
+  "securityDefinitions":
+  {
+    "bearerToken": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/auth/signup": {
+      "post": {
+        "summary": "SignUp",
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "SignUp",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "default": "application/json"
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/SignUpRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Login",
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "Login",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "default": "application/json"
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/LoginRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "get": {
+        "summary": "Logout",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "operationId": "Logout",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "summary": "Reset password",
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "Resetpassword",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "default": "application/json"
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ResetpasswordRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/auth/reset-password/confirm/{token}": {
+      "post": {
+        "summary": "Reset password confirmation",
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "Resetpasswordconfirmation",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "default": "application/json"
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/ResetpasswordconfirmationRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/workspace": {
+      "post": {
+        "summary": "Create workspace",
+        "tags": [
+          "Workspace"
+        ],
+        "operationId": "Createworkspace",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/CreateworkspaceRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/workspace/{workspaceId}": {
+      "get": {
+        "summary": "Get workspace",
+        "tags": [
+          "Workspace"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "operationId": "Getworkspace",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update workspace",
+        "tags": [
+          "Workspace"
+        ],
+        "operationId": "Updateworkspace",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/UpdateworkspaceRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "delete": {
+        "summary": "Deleting workspace",
+        "tags": [
+          "Workspace"
+        ],
+        "operationId": "Deletingworkspace",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "type": "string",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/workspace/{workspaceId}/add-user": {
+      "post": {
+        "summary": "Add user in workspace",
+        "tags": [
+          "Workspace"
+        ],
+        "operationId": "Adduserinworkspace",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/AdduserinworkspaceRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/workspace/{workspaceId}/image": {
+      "post": {
+        "summary": "Update workspace Image",
+        "tags": [
+          "Workspace"
+        ],
+        "operationId": "UpdateworkspaceImage",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "workspaceId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "default": "workspace"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "default": "multipart/form-data"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete workspace Logo",
+        "tags": [
+          "Workspace"
+        ],
+        "operationId": "DeleteworkspaceLogo",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "default": "workspace"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "default": "multipart/form-data"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/workspace/{workspaceId}/update-user-role": {
+      "patch": {
+        "summary": "Update user role",
+        "tags": [
+          "Workspace"
+        ],
+        "operationId": "Updateuserrole",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/UpdateuserroleRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/workspace/{workspaceId}/remove-user": {
+      "delete": {
+        "summary": "Remove user from workspace",
+        "tags": [
+          "Workspace"
+        ],
+        "operationId": "Removeuserfromworkspace",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/RemoveuserfromworkspaceRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/workspace/{workspaceId}/leave": {
+      "delete": {
+        "summary": "Leave from workspace",
+        "tags": [
+          "Workspace"
+        ],
+        "operationId": "Leavefromworkspace",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "type": "string",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/channel": {
+      "post": {
+        "summary": "Create",
+        "tags": [
+          "Channel"
+        ],
+        "operationId": "Create",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/CreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/channel/{channelId}": {
+      "get": {
+        "summary": "Get",
+        "tags": [
+          "Channel"
+        ],
+        "operationId": "Get",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update",
+        "tags": [
+          "Channel"
+        ],
+        "operationId": "Update",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "channelId",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/UpdateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete",
+        "tags": [
+          "Channel"
+        ],
+        "operationId": "Delete",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "channelId",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/DeleteRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/channel/{channelId}/add-user": {
+      "post": {
+        "summary": "Add user",
+        "tags": [
+          "Channel"
+        ],
+        "operationId": "Adduser",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/AdduserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/channel/{channelId}/remove-user": {
+      "delete": {
+        "summary": "Remove user",
+        "tags": [
+          "Channel"
+        ],
+        "operationId": "Removeuser",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "channelId",
+            "required": true,
+            "in": "path",
+            "type": "string"
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/RemoveuserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/channel/{channelId}/leave": {
+      "delete": {
+        "summary": "Leave",
+        "tags": [
+          "Channel"
+        ],
+        "operationId": "Leave",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "channelId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/user/me": {
+      "get": {
+        "summary": "Get me",
+        "tags": [
+          "User"
+        ],
+        "operationId": "Getme",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update user",
+        "tags": [
+          "User"
+        ],
+        "operationId": "Updateuser",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/UpdateuserRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/user/me/image": {
+      "post": {
+        "summary": "Upload avatar",
+        "tags": [
+          "User"
+        ],
+        "operationId": "Uploadavatar",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "default": "user"
+          },
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "default": "multipart/form-data"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete avatar",
+        "tags": [
+          "User"
+        ],
+        "operationId": "Deleteavatar",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "default": "user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    },
+    "/user/me/workspaces": {
+      "get": {
+        "summary": "Get workspaces",
+        "tags": [
+          "User"
+        ],
+        "operationId": "Getworkspaces",
+        "deprecated": false,
+        "produces": [
+          "application/json"
+        ],
+        "security": [{
+          "bearerToken": []
+        }],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "headers": {}
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "SignUpRequest": {
+      "title": "SignUpRequest",
+      "example": {
+        "email": "",
+        "password": "",
+        "confirmPassword": "",
+        "fullName": ""
+      },
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "confirmPassword": {
+          "type": "string"
+        },
+        "fullName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "email",
+        "password",
+        "confirmPassword",
+        "fullName"
+      ]
+    },
+    "LoginRequest": {
+      "title": "LoginRequest",
+      "example": {
+        "email": "",
+        "password": ""
+      },
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "email",
+        "password"
+      ]
+    },
+    "ResetpasswordRequest": {
+      "title": "ResetpasswordRequest",
+      "example": {
+        "email": ""
+      },
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "email"
+      ]
+    },
+    "ResetpasswordconfirmationRequest": {
+      "title": "ResetpasswordconfirmationRequest",
+      "example": {
+        "password": ""
+      },
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "password"
+      ]
+    },
+    "CreateworkspaceRequest": {
+      "title": "CreateworkspaceRequest",
+      "example": {
+        "name": ""
+      },
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "UpdateworkspaceRequest": {
+      "title": "UpdateworkspaceRequest",
+      "example": {
+        "name": ""
+      },
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "AdduserinworkspaceRequest": {
+      "title": "AdduserinworkspaceRequest",
+      "example": {
+        "email": ""
+      },
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "email"
+      ]
+    },
+    "UpdateuserroleRequest": {
+      "title": "UpdateuserroleRequest",
+      "example": {
+        "role": "",
+        "userId": ""
+      },
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "userId"
+      ]
+    },
+    "RemoveuserfromworkspaceRequest": {
+      "title": "RemoveuserfromworkspaceRequest",
+      "example": {
+        "userId": ""
+      },
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "userId"
+      ]
+    },
+    "CreateRequest": {
+      "title": "CreateRequest",
+      "example": {
+        "name": "",
+        "workspaceId": ""
+      },
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "workspaceId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "workspaceId"
+      ]
+    },
+    "UpdateRequest": {
+      "title": "UpdateRequest",
+      "example": {
+        "name": ""
+      },
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "DeleteRequest": {
+      "title": "DeleteRequest",
+      "example": {
+        "workspaceId": ""
+      },
+      "type": "object",
+      "properties": {
+        "workspaceId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "workspaceId"
+      ]
+    },
+    "AdduserRequest": {
+      "title": "AdduserRequest",
+      "example": {
+        "userId": ""
+      },
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "userId"
+      ]
+    },
+    "RemoveuserRequest": {
+      "title": "RemoveuserRequest",
+      "example": {
+        "userId": ""
+      },
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "userId"
+      ]
+    },
+    "UpdateuserRequest": {
+      "title": "UpdateuserRequest",
+      "example": {
+        "email": "",
+        "fullName": ""
+      },
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "fullName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "email",
+        "fullName"
+      ]
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication"
+    },
+    {
+      "name": "Workspace"
+    },
+    {
+      "name": "Channel"
+    },
+    {
+      "name": "User"
+    }
+  ]
+}

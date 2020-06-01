@@ -3,10 +3,12 @@ import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import logger from 'morgan';
 import passport from 'passport';
+import swaggerUi from 'swagger-ui-express';
 
 import router from './routes';
 import config from './config';
 import Error from './helpers/Error';
+import * as swaggerDocument from './swagger';
 
 const app = express();
 
@@ -14,6 +16,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(logger('dev'));
 app.use('/images', express.static('images'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(passport.initialize());
 require('./middlewares/passport')(passport);
