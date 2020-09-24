@@ -29,6 +29,11 @@ const channelSchema = new Schema({
         type: String,
         default: null,
     },
+    messages: {
+        type: Schema.Types.ObjectId,
+        ref: 'Messages',
+        // required: true
+    } || null,
     isDefault: {
         type: Boolean
     },

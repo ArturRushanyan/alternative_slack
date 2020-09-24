@@ -1,4 +1,5 @@
 import Error from '../../helpers/Error';
+import * as util from '../../helpers/utils';
 import {
     ALREADY_EXISTS,
     CHANNEL_USERS_ROLES,
@@ -13,13 +14,12 @@ import {
 
 import * as channelService from '../../services/channelService';
 import * as workspaceService from '../../services/workspaceService';
-import * as util from '../../helpers/utils';
+import * as messagesService from '../../services/messageService';
 
-
-exports.create = (req, res, next) => {
+exports.create = (req, res) => {
     const { name, workspaceId } = req.body;
     const { user } = req;
-    let createdChannel;
+    let channel;
 
     channelService.findChannel({ name, workspaceId }).then((channel) => {
         if (channel.success) {
@@ -32,17 +32,31 @@ exports.create = (req, res, next) => {
             name,
             user,
             role: CHANNEL_USERS_ROLES.OWNER,
-            workspaceId
+            workspaceId,
+            messages: null
         };
 
         return channelService.createChannel(params);
-    }).then((channel) => {
-        if (!channel) {
-            throw {status: 500, message: SOMETHING_WENT_WRONG}
+    }).then((createdChannel) => {
+        if (!createdChannel.success) {
+            throw { status: 500, message: createdChannel.error || SOMETHING_WENT_WRONG };
         }
-        createdChannel = channel;
+        channel = createdChannel;
 
-        return workspaceService.addChannelInWorkspace(workspaceId, channel._id);
+        return messagesService.initializeChannelMessages(channel);
+    }).then(initializedMessage => {
+        // if () {
+        //
+        // }
+        console.log('initializedMessage =>>>', initializedMessage);
+        // const attributes = {
+        //     messages: initializedMessage,
+        // };
+
+        return channelService.updateChannel({_id: channel._id}, attributes);
+    }).then(aa => {
+
+        return workspaceService.addChannelInWorkspace(workspaceId, createdChannel._id);
     }).then((result) => {
         if (!result.success) {
             throw { status: 400, message: result.err || SOMETHING_WENT_WRONG };

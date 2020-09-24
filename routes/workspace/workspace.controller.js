@@ -20,12 +20,14 @@ import * as userService from '../../services/userService';
 import * as workspaceService from '../../services/workspaceService';
 import * as channelService from '../../services/channelService';
 import * as userWorkspaceService from '../../services/userWorkspaceService';
+import * as messagesService from "../../services/messageService";
 
-exports.create = (req, res, next) => {
+exports.create = (req, res) => {
     const { user } = req;
     const name = req.body.name;
     let workspace;
     let channel;
+    let message;
 
     workspaceService.findWorkspace({ name: name}).then((workspace) => {
         if (!workspace.success && workspace.error) {
@@ -37,42 +39,50 @@ exports.create = (req, res, next) => {
             name: 'general',
             user,
             role: CHANNEL_USERS_ROLES.OWNER,
-            isDefault: true
+            isDefault: true,
+            messages: null
         };
 
         return channelService.createChannel(params);
     }).then((createdChannel) => {
-        if (!createdChannel) {
-            throw { status: 500, message: SOMETHING_WENT_WRONG };
+        if (!createdChannel.success) {
+            throw {status: 500, message: SOMETHING_WENT_WRONG};
         }
-        channel = createdChannel;
+        channel = createdChannel.channel;
+        return messagesService.initializeChannelMessages(channel);
+    }).then( initializedMessage => {
+        if (!initializedMessage.success) {
+            throw { status: 500, message: initializedMessage.error || SOMETHING_WENT_WRONG };
+        }
 
-        return workspaceService.createWorkspace(name, user, 'owner', createdChannel);
+        message = initializedMessage;
+        return workspaceService.createWorkspace(name, user, 'owner', channel);
     }).then((result) => {
-        if (!result) {
-            throw { status: 500, message: SOMETHING_WENT_WRONG }
+        if (!result.success) {
+            throw { status: 500, message: result.error || SOMETHING_WENT_WRONG }
         }
         workspace = result;
-
         return userWorkspaceService.addUserWorkspace(user, workspace._id);
     }).then((result) => {
         if (!result.success) {
-            throw {status: 500, message: result.error};
+            throw {status: 500, message: result.error || SOMETHING_WENT_WRONG};
         }
-
-        return channelService.updateChannel({ _id: channel._id }, { workspaceId: workspace._id });
+        const attributes = {
+            workspaceId: workspace._id,
+            messages: message
+        };
+        return channelService.updateChannel({ _id: channel._id }, attributes);
     }).then((result) => {
         if (!result.success) {
             throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
         }
-
         return res.status(200).json({ success: true, workspace });
     }).catch(err => {
         return Error.errorHandler(res, err.status, err.message);
     });
 };
 
-exports.get = (req, res, next) => {
+exports.get = (req, res) => {
     const { workspaceId } = req.params;
 
     workspaceService.getWorkspace({ _id: workspaceId }).then((workspace) => {
@@ -86,7 +96,7 @@ exports.get = (req, res, next) => {
     });
 };
 
-exports.update = (req, res, next) => {
+exports.update = (req, res) => {
     const { workspaceId } = req.params;
     const { name } = req.body;
 
@@ -114,7 +124,7 @@ exports.update = (req, res, next) => {
     });
 };
 
-exports.delete = (req, res, next) => {
+exports.delete = (req, res) => {
     const { workspaceId } = req.params;
     userWorkspaceService.deleteUserWorkspace(req.workspace).then(result => {
         if (!result.success) {
@@ -132,7 +142,7 @@ exports.delete = (req, res, next) => {
     });
 };
 
-exports.addUser = (req, res, next) => {
+exports.addUser = (req, res) => {
     const { workspaceId } = req.params;
     const { email } = req.body;
     const { role } = req.body;
@@ -169,7 +179,7 @@ exports.addUser = (req, res, next) => {
     })
 };
 
-exports.updateImage = (req, res, next) => {
+exports.updateImage = (req, res) => {
     util.deleteImage(req.workspace.imageUrl).then((result) => {
         if (!result.success) {
             throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
@@ -187,7 +197,7 @@ exports.updateImage = (req, res, next) => {
     });
 };
 
-exports.deleteImage = (req, res, next) => {
+exports.deleteImage = (req, res) => {
     util.deleteImage(req.workspace.imageUrl).then((result) => {
         if (!result.success) {
             throw { status: 500, message: result.error || SOMETHING_WENT_WRONG };
@@ -205,7 +215,7 @@ exports.deleteImage = (req, res, next) => {
     })
 };
 
-exports.updateUserRole = (req, res, next) => {
+exports.updateUserRole = (req, res) => {
     const { workspaceId } = req.params;
     let targetUser = req.body.userId;
     const { user } = req;
@@ -236,7 +246,7 @@ exports.updateUserRole = (req, res, next) => {
 
 };
 
-exports.removeUser = (req, res, next) => {
+exports.removeUser = (req, res) => {
     const { workspaceId } = req.params;
     let targetUser = req.body.userId;
     const { user } = req;
@@ -277,7 +287,7 @@ exports.removeUser = (req, res, next) => {
     });
 };
 
-exports.leaveWorkspace = (req, res, next) => {
+exports.leaveWorkspace = (req, res) => {
     const { workspaceId } = req.params;
     const { user } = req;
     util.getUserFromMembers(user._id, req.workspace.members).then(result => {

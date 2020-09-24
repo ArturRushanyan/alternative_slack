@@ -82,8 +82,13 @@ exports.createWorkspace = (name, user, role, channel) => {
         channel: channel._id
     });
 
-    return workspace.save().then((result) => {
-        return result;
+    return workspace.save().then(result => {
+        if (!result) {
+            return { success: false };
+        }
+        return { success: true, result };
+    }).catch(err => {
+        return { success: false, error: err };
     });
 };
 

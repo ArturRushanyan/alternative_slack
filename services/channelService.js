@@ -15,20 +15,15 @@ exports.getPermissions = (operationType) => {
 };
 
 exports.createChannel = (params) => {
-
     let channel = new channelModel({
         name: params.name,
         owner: params.user._id,
         members: { role: params.role, user: params.user._id },
         isDefault: params.isDefault || false,
         workspaceId: params.workspaceId || null,
+        messages: params.messages
     });
-
-    return channel.save();
-};
-
-exports.findChannel = (query) => {
-    return channelModel.findOne(query).then(channel => {
+    return channel.save().then(channel => {
         if (!channel) {
             return { success: false };
         }
@@ -36,6 +31,21 @@ exports.findChannel = (query) => {
     }).catch(err => {
         return { success: false, error: err };
     });
+};
+
+exports.findChannel = (query) => {
+
+    return channelModel.findOne(query).then(channel => {
+        throw { status: 500, message: 'bllalalllalalala' };
+    });
+    // return channelModel.findOne(query).then(channel => {
+    //     if (!channel) {
+    //         return { success: false };
+    //     }
+    //     return { success: true, channel };
+    // }).catch(err => {
+    //     return { success: false, error: err };
+    // });
 };
 
 exports.getChannel = (query) => {
@@ -47,7 +57,6 @@ exports.updateChannel = (query, attributes) => {
         if (!result) {
             return { success: false };
         }
-
         return { success: true, channel: result };
     }).catch(err => {
         return { success: false, error: err }
